@@ -1879,3 +1879,17 @@ int validarloginpaci(char nombre[100], char login[100]){
     return existe;
 }
 */
+//Pueba
+//Pueba
+//Pueba
+//Pueba
+//Pueba
+//Pueba
+//Pueba
+//Pueba
+//Pueba
+//Pueba
+//Pueba
+//Pueba
+//Pueba
+//Pueba
