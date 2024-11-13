@@ -5,6 +5,7 @@
 #include <time.h>
 
 typedef struct Admin{
+    int estado;
     char nombre[50];
     char cedula[10];
     char direccion[50];
@@ -68,7 +69,7 @@ void eliminarPaciente();
 void generarInformesMedico();
 void loginPaciente();
 void mostrarMedicoTODO(Medico);
-int validarloginadmin(char[], char[]);
+Administrador validarloginadmin(char[], char[]);
 int validarloginmed(char[], char[]);
 int validarloginpaci(char[], char[]);
 
@@ -387,7 +388,7 @@ void mostrarMedicoTODO(Medico Med){
 //Eder
 void loginAdministrador(){
     printf("\nLogin Administrador\n");
-    Administrador *Admin;
+    Administrador Admin;
     char nombreA[100];
     char nombreL[100];
     int intentos = 0;
@@ -402,11 +403,11 @@ void loginAdministrador(){
             printf("\nHas alcanzado el maximo de intentos\n");
             main();
         }
-    }while(Admin == NULL);
-    menuAdministrador(Admin);
+    }while(Admin.estado == 100);
+    menuAdministrador(&Admin);
 }
 
-int validarloginadmin(char nombre[100], char login[100]){
+Administrador validarloginadmin(char nombre[100], char login[100]){
     FILE *archivo;
     archivo = fopen("registroAdmin.bin", "rb");
     if(archivo == NULL){
@@ -423,9 +424,10 @@ int validarloginadmin(char nombre[100], char login[100]){
     }
     fclose(archivo);
     if (existe ==1){
-        return &Admin;
+        return Admin;
     }else{
-        return NULL;
+        Admin.estado = 100;
+        return Admin;
     }
     
 }
