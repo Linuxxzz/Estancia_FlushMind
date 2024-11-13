@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <time.h>
-//Comentario ejemplo de commit
 typedef struct Admin{
     int estado;
     char nombre[50];
