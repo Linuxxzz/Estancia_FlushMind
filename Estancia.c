@@ -14,6 +14,8 @@ typedef struct Admin{
     char login[100];
 }Administrador;
 
+//Eder
+
 typedef struct Med{
     int estado;
     char nombre[50];
