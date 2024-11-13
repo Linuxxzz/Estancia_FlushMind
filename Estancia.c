@@ -1913,5 +1913,3 @@ void responderCuestionarios(){
 void generarInformesPaciente(){
     printf("\nSeleccionado Visualizar datos de las consultas\n");
 }
-
-//Comentario último
