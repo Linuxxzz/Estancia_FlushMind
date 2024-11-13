@@ -38,7 +38,7 @@ typedef struct Cues{
     int estado;
     int cuestionario;
     char paciente[50];
-    char observaciones[500];
+    char observaciones[1000];
     char fecha[40];
 }Cuestionarios;
 
@@ -1162,6 +1162,18 @@ void modificarInformacionMedico(Medico **medico){
             fread(&aux, sizeof(Medico), 1, modMedico);
         } while (feof(modMedico) == 0);
         fclose(modMedico);
+        FILE *modName = fopen("registroPaciente.bin", "r+b");
+        Paciente auxiliar;
+        fread(&auxiliar, sizeof(Paciente), 1, modName);
+        do{
+            if(strcmp(auxiliar.medico, medicoBuscado.nombre) == 0){
+                fseek(modName,-(long)sizeof(Paciente),SEEK_CUR);
+                strcpy(auxiliar.medico, (*medico)->nombre);
+                fwrite(&auxiliar, sizeof(Paciente), 1, modName);
+            }
+            fread(&auxiliar, sizeof(Paciente), 1, modName);
+        } while (feof(modName) == 0);
+        fclose(modName);
     }
 }
 
