@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <time.h>
-
+//Vuelto a hacer cometario
 typedef struct Admin{
     int estado;
     char nombre[50];
@@ -13,6 +13,8 @@ typedef struct Admin{
     char correo[30];
     char login[100];
 }Administrador;
+
+//Eder
 
 typedef struct Med{
     int estado;
@@ -1911,5 +1913,3 @@ void responderCuestionarios(){
 void generarInformesPaciente(){
     printf("\nSeleccionado Visualizar datos de las consultas\n");
 }
-
-//Eder es puto
