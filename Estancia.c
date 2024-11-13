@@ -45,6 +45,7 @@ typedef struct Cues{
 void continuar();
 void registroAdministrador(int, Administrador *);
 void loginAdministrador();
+Administrador validarloginadmin(char[], char[]);
 void menuAdministrador(Administrador *); 
 void gestionarMedico();
 void registrarMedico();
@@ -53,25 +54,26 @@ void cambiarEstatusMedico();
 void eliminarMedico();
 void generarInformesAdministrador();
 void loginMedico();
+Medico validarloginmed(char[], char[]);
 void menuMedico(Medico *);
 void modificarInformacionMedico(Medico **);
 void gestionarPaciente(Medico *);
 void registrarPaciente(Medico *);
-void actualizarInformacionPaciente();
-void cambiarEstatusPaciente();
-void evaluarPaciente();
+void actualizarInformacionPaciente(Medico *);
+void cambiarEstatusPaciente(Medico *);
+void evaluarPaciente(Medico *);
 void evaluacion(Paciente *);
 void registrarConsulta(Paciente *);
 void observaciones();
 void asignarCuestionarios();
 void verResultados();
-void eliminarPaciente();
+void eliminarPaciente(Medico *);
 void generarInformesMedico();
 void loginPaciente();
-void mostrarMedicoTODO(Medico);
-Administrador validarloginadmin(char[], char[]);
-int validarloginmed(char[], char[]);
-int validarloginpaci(char[], char[]);
+Paciente validarloginpaci(char[], char[]);
+void menuPaciente(Paciente *);
+void responderCuestionarios();
+void generarInformesPaciente();
 
 int main(){
     Administrador admin;
@@ -130,11 +132,6 @@ int main(){
     }
 }
 
-void continuar(){
-    int conti;
-    printf("Presione 1 + enter para continuar: \n\n");
-    scanf("%d%*c", &conti);
-}
 void registroAdministrador(int CRUD, Administrador *admin){
     FILE *registroAdmin;
     if(CRUD == 1){
@@ -321,71 +318,6 @@ void registroAdministrador(int CRUD, Administrador *admin){
     }
 }
 
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-void mostrarMedicoTODO(Medico Med){
-    printf("-------------- Reporte de Médicos --------------");
-    FILE *archivo;
-    Medico unapersona;
-    char estat[20];
-    archivo = fopen("registroMedico.bin", "rb");
-    if(archivo == NULL){
-        exit(1);
-    }
-    int cont = 0;
-    int habi = 0;
-    int desh = 0;
-    fread(&unapersona, sizeof(unapersona),1,archivo);
-    while(!feof(archivo)){
-        if(unapersona.estado == 1){
-            strcpy(estat, "HABILITADO");
-            printf("\n Médicos [%d]: %s, Estatus: %s\n",cont + 1, unapersona.nombre, estat);
-            habi++;
-        }else{
-            strcpy(estat, "DESHABILITADO"); 
-            printf("\n Médicos [%d]: %s, Estatus: %s\n",cont + 1, unapersona.nombre, estat);
-            desh++;
-        }
-        cont++;
-        fread(&unapersona, sizeof(unapersona),1,archivo);
-    }
-    printf("\n");
-    for (int i = 0; i < 50; i++)
-    {
-       printf("-");
-    }
-    printf("\n");
-    printf("La cantidad de medicos son: %d\n", cont);
-    for (int i = 0; i < 50; i++){
-       printf("-");
-    }
-    printf("\n");
-    printf("La cantidad de medicos inactivos son: %d\n", desh);
-    for (int i = 0; i < 50; i++){
-       printf("-");
-    }
-    printf("\n");
-    printf("La cantidad de medicos activos son: %d\n", habi);
-
-    fclose(archivo);
-    printf("\n");
-    continuar();
-
-
-}
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
 void loginAdministrador(){
     printf("\nLogin Administrador\n");
     Administrador Admin;
@@ -409,18 +341,16 @@ void loginAdministrador(){
 
 Administrador validarloginadmin(char nombre[100], char login[100]){
     FILE *archivo;
-    archivo = fopen("registroAdmin.bin", "rb");
-    if(archivo == NULL){
-        exit(1);
-    }
     Administrador Admin;
     int existe = 0;
-        fread(&Admin, sizeof(Admin),1,archivo);
+    archivo = fopen("registroAdmin.bin", "rb");
+    fread(&Admin, sizeof(Administrador),1,archivo);
     while(!feof(archivo)){
         if((strcmp(nombre, Admin.nombre) == 0)&&(strcmp(login, Admin.login) == 0)){
             existe = 1;
+            break;
         }
-        fread(&Admin, sizeof(Admin),1,archivo);
+        fread(&Admin, sizeof(Administrador),1,archivo);
     }
     fclose(archivo);
     if (existe ==1){
@@ -429,13 +359,11 @@ Administrador validarloginadmin(char nombre[100], char login[100]){
         Admin.estado = 100;
         return Admin;
     }
-    
 }
 
 void menuAdministrador(Administrador *ptradmin){
     int opcion, i;
     char opc[100];
-    Medico Med;
     do{
         opc[0] = '0';
         printf("\n          Bienvenido %s!\n", ptradmin->nombre);
@@ -462,7 +390,7 @@ void menuAdministrador(Administrador *ptradmin){
                     gestionarMedico();
                     break;
                 case 3:
-                    mostrarMedicoTODO(Med);
+                    generarInformesAdministrador();
                     break;
                 case 4:
                     printf("Cerrando sesion.\n");
@@ -988,24 +916,59 @@ void eliminarMedico(){
     }
 }
 
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
 void generarInformesAdministrador(){
-    /*Cuando puedas me dices que necesitas para generar los informes*/
-    printf("\nSeleccionado Generar Informes\n");
+    printf("\n-------------- Reporte de Médicos --------------\n");
+    FILE *archivo;
+    Medico unapersona;
+    char estat[20];
+    archivo = fopen("registroMedico.bin", "rb");
+    if(archivo == NULL){
+        printf("\nNo hay medicos registrados por el momento, regrese cuando alla registrado a algun medico\n");
+        fclose(archivo);
+        return;
+    }
+    int cont = 0;
+    int habi = 0;
+    int desh = 0;
+    fread(&unapersona, sizeof(Medico),1,archivo);
+    while(!feof(archivo)){
+        if(unapersona.estado == 1){
+            strcpy(estat, "HABILITADO");
+            printf("\n Médicos [%d]: %s, Estatus: %s\n",cont + 1, unapersona.nombre, estat);
+            habi++;
+        }else{
+            strcpy(estat, "DESHABILITADO"); 
+            printf("\n Médicos [%d]: %s, Estatus: %s\n",cont + 1, unapersona.nombre, estat);
+            desh++;
+        }
+        cont++;
+        fread(&unapersona, sizeof(Medico), 1, archivo);
+    }
+    printf("\n");
+    for (int i = 0; i < 50; i++){
+       printf("-");
+    }
+    printf("\n");
+    printf("La cantidad de medicos son: %d\n", cont);
+    for (int i = 0; i < 50; i++){
+       printf("-");
+    }
+    printf("\n");
+    printf("La cantidad de medicos inactivos son: %d\n", desh);
+    for (int i = 0; i < 50; i++){
+       printf("-");
+    }
+    printf("\n");
+    printf("La cantidad de medicos activos son: %d\n", habi);
+    fclose(archivo);
+    printf("\n");
+    continuar();
+}
+
+void continuar(){
+    int conti;
+    printf("Presione 1 + enter para continuar: \n\n");
+    scanf("%d%*c", &conti);
 }
 
 void loginMedico(){
@@ -1013,56 +976,51 @@ void loginMedico(){
     Medico Med;
     char nombreA[100];
     char nombreL[100];
-    int cont;
     int intentos = 0;
     do{
         printf("Ingrese su nombre:");
         scanf("%[^\n]%*c", nombreA);
         printf("Ingrese su cedula:");
         scanf("%[^\n]%*c", nombreL);
-        cont = validarloginmed(nombreA,nombreL);
+        Med = validarloginmed(nombreA,nombreL);
+        if (Med.estado == -100){
+            printf("\nNo hay ningun medico registrado por el momento\n");
+            return;
+        }
         intentos++;
         if(intentos == 3){
             printf("\nHas alcanzado el maximo de intentos\n");
             main();
         }
-    }while(cont != 1);
+    }while(Med.estado == 100);
     menuMedico(&Med);
 }
 
-int validarloginmed(char nombre[100], char login[100]){
+Medico validarloginmed(char nombre[100], char login[100]){
     FILE *archivo;
-    archivo = fopen("registroMedico.bin", "rb");
-    if(archivo == NULL){
-        exit(1);
-    }
     Medico Med;
     int existe = 0;
-        fread(&Med, sizeof(Med),1,archivo);
+    archivo = fopen("registroMedico.bin", "rb");
+    if(archivo == NULL){
+        Med.estado = -100;
+        return Med;
+    }
+    fread(&Med, sizeof(Medico), 1, archivo);
     while(!feof(archivo)){
-        if((strcmp(nombre, Med.nombre) == 0)&&(strcmp(login, Med.login) == 0)){
+        if((strcmp(nombre, Med.nombre) == 0) && (strcmp(login, Med.login) == 0)){
             existe = 1;
+            break;
         }
-        fread(&Med, sizeof(Med),1,archivo);
+        fread(&Med, sizeof(Medico),1,archivo);
     }
     fclose(archivo);
-    return existe;
+    if (existe == 1){
+        return Med;
+    }else{
+        Med.estado = 100;
+        return Med;
+    }
 }
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
 
 void menuMedico(Medico *ptrmedico){
     int opcion, i;
@@ -1236,18 +1194,18 @@ void gestionarPaciente(Medico *medico){
                     registrarPaciente(medico);
                     break;
                 case 2:
-                    actualizarInformacionPaciente();
+                    actualizarInformacionPaciente(medico);
                     break;
                 case 3:
-                    cambiarEstatusPaciente();
+                    cambiarEstatusPaciente(medico);
                     break;
                 case 4:
-                    evaluarPaciente();
+                    evaluarPaciente(medico);
                     break;
                 case 5:
-                    eliminarPaciente();
+                    eliminarPaciente(medico);
                 break;
-            }//Me gusta el pene
+            }
         }else{
             printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
             fflush(stdin);
@@ -1359,7 +1317,7 @@ void registrarPaciente(Medico *medico){
     fclose(registrarPaciente);
 }
 
-void actualizarInformacionPaciente(){
+void actualizarInformacionPaciente(Medico *medico){
     Paciente pac;
     FILE *ptrpacientes = fopen("registroPaciente.bin", "rb");
     int opcion, i;
@@ -1380,7 +1338,9 @@ void actualizarInformacionPaciente(){
             printf("\nLista de pacientes:");
             fread(&pac, sizeof(Paciente), 1, ptrpacientes);
             do{
-                printf("\n%s ", pac.nombre);
+                if (strcmp(medico->nombre, pac.medico) == 0){
+                    printf("\n%s ", pac.nombre);
+                }
                 fread(&pac, sizeof(Paciente), 1, ptrpacientes);
             } while (feof(ptrpacientes) == 0);
             fclose(ptrpacientes);
@@ -1391,7 +1351,7 @@ void actualizarInformacionPaciente(){
                 ptrpacientes = fopen("registroPaciente.bin", "r+b");
                 fread(&pac, sizeof(Paciente), 1, ptrpacientes);
                 do{
-                    if (strcmp(opc, pac.nombre) == 0){
+                    if ((strcmp(opc, pac.nombre) == 0) && (strcmp(medico->nombre, pac.medico) == 0)){
                         printf("\n              Modificar informacion personal\n");
                         printf("\nNombre: %s", pac.nombre);
                         printf("\nNSS: %s", pac.nss);
@@ -1497,7 +1457,7 @@ void actualizarInformacionPaciente(){
     }
 }
 
-void cambiarEstatusPaciente(){
+void cambiarEstatusPaciente(Medico *medico){
     Paciente pac;
     FILE *ptrpacientes = fopen("registroPaciente.bin", "rb");
     int opcion, i;
@@ -1518,12 +1478,14 @@ void cambiarEstatusPaciente(){
             printf("\nLista de pacientes:");
             fread(&pac, sizeof(Paciente), 1, ptrpacientes);
             do{
-                printf("\n%s ", pac.nombre);
-                if (pac.estado == 1){
-                    printf("(Habilitado)");
-                }
-                if (pac.estado == 0){
-                    printf("(Deshabilitado)");
+                if (strcmp(medico->nombre, pac.medico) == 0){
+                    printf("\n%s ", pac.nombre);
+                    if (pac.estado == 1){
+                        printf("(Habilitado)");
+                    }
+                    if (pac.estado == 0){
+                        printf("(Deshabilitado)");
+                    }
                 }
                 fread(&pac, sizeof(Paciente), 1, ptrpacientes);
             } while (feof(ptrpacientes) == 0);
@@ -1535,7 +1497,7 @@ void cambiarEstatusPaciente(){
                 ptrpacientes = fopen("registroPaciente.bin", "r+b");
                 fread(&pac, sizeof(Paciente), 1, ptrpacientes);
                 do{
-                    if (strcmp(opc, pac.nombre) == 0){
+                    if ((strcmp(opc, pac.nombre) == 0) && (strcmp(medico->nombre, pac.medico) == 0)){
                         if (pac.estado == 1){
                             do{
                                 respuesta[0] = '0';
@@ -1613,7 +1575,7 @@ void cambiarEstatusPaciente(){
     }
 }
 
-void evaluarPaciente(){
+void evaluarPaciente(Medico *medico){
     Paciente pac;
     FILE *ptrpacientes = fopen("registroPaciente.bin", "rb");
     int opcion;
@@ -1634,7 +1596,9 @@ void evaluarPaciente(){
             printf("\nLista de pacientes:");
             fread(&pac, sizeof(Paciente), 1, ptrpacientes);
             do{
-                printf("\n%s ", pac.nombre);
+                if (strcmp(medico->nombre, pac.medico) == 0){
+                    printf("\n%s ", pac.nombre);
+                }
                 fread(&pac, sizeof(Paciente), 1, ptrpacientes);
             } while (feof(ptrpacientes) == 0);
             fclose(ptrpacientes);
@@ -1645,7 +1609,7 @@ void evaluarPaciente(){
                 ptrpacientes = fopen("registroPaciente.bin", "r+b");
                 fread(&pac, sizeof(Paciente), 1, ptrpacientes);
                 do{
-                    if (strcmp(opc, pac.nombre) == 0){
+                    if ((strcmp(opc, pac.nombre) == 0) && (strcmp(medico->nombre, pac.medico) == 0)){
                         evaluacion(&pac);
                         opcion = 2;
                         break;
@@ -1785,7 +1749,7 @@ void verResultados(){
 //Alan
 //Alan
 //Alan
-void eliminarPaciente(){
+void eliminarPaciente(Medico *medico){
     printf("\nEliminar pacientes\n");
 }
 //Alan
@@ -1839,45 +1803,99 @@ void generarInformesMedico(){
 //Eder
 
 void loginPaciente(){
-    /*
     printf("\nLogin Paciente\n");
-    Paciente *paci;
+    Paciente Pac;
     char nombreA[100];
     char nombreL[100];
-    int cont;
     int intentos = 0;
     do{
         printf("Ingrese su nombre:");
         scanf("%[^\n]%*c", nombreA);
         printf("Ingrese su cedula:");
         scanf("%[^\n]%*c", nombreL);
-        cont = validarloginpaci(nombreA,nombreL);
+        Pac = validarloginpaci(nombreA,nombreL);
+        if (Pac.estado == -100){
+            printf("\nNo hay ningun medico registrado por el momento\n");
+            return;
+        }
         intentos++;
         if(intentos == 3){
             printf("\nHas alcanzado el maximo de intentos\n");
             main();
         }
-    }while(cont != 1);
-    */
+    }while(Pac.estado == 100);
+    menuPaciente(&Pac);
 }
 
-/*
-int validarloginpaci(char nombre[100], char login[100]){
+Paciente validarloginpaci(char nombre[100], char login[100]){
     FILE *archivo;
-    archivo = fopen("registroPaciente.bin", "rb");
-    if(archivo == NULL){
-        exit(1);
-    }
     Paciente Pacie;
     int existe = 0;
-        fread(&Pacie, sizeof(Pacie),1,archivo);
+    archivo = fopen("registroPaciente.bin", "rb");
+    if(archivo == NULL){
+        Pacie.estado = -100;
+        return Pacie;
+    }
+        fread(&Pacie, sizeof(Paciente),1,archivo);
     while(!feof(archivo)){
         if((strcmp(nombre, Pacie.nombre) == 0)&&(strcmp(login, Pacie.login) == 0)){
             existe = 1;
+            break;
         }
-        fread(&Pacie, sizeof(Pacie),1,archivo);
+        fread(&Pacie, sizeof(Paciente),1,archivo);
     }
     fclose(archivo);
-    return existe;
+    if (existe == 1){
+        return Pacie;
+    }else{
+        Pacie.estado = 100;
+        return Pacie;
+    }
 }
-*/
+
+void menuPaciente(Paciente *ptrpac){
+    int opcion, i;
+    char opc[100];
+    do{
+        opc[0] = '0';
+        printf("\n          Bienvenido %s!\n", ptrpac->nombre);
+        printf("\n¿Que accion desea realizar? (Seleccione el número de la accion)");
+        printf("\n1) Responder Cuestionarios");
+        printf("\n2) Visualizar datos de las consultas");
+        printf("\n3) Salir\n");
+        scanf("%[^\n]%*c", opc);
+        opcion = atoi(opc);
+        if((opcion > 0 && opcion < 4)){
+            for (i = 0; i < (int)strlen(opc); i++){
+                if(!isdigit(opc[i])){
+                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                    opcion = 0;
+                    break;
+                }
+            }
+            switch (opcion){
+                case 1:
+                    responderCuestionarios();
+                    break;
+                case 2:
+                    generarInformesPaciente();
+                    break;
+                case 3:
+                    printf("Cerrando sesion.\n");
+                    break;
+            }
+        }else{
+            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+            fflush(stdin);
+            opcion = 0;
+        }
+    }while (opcion != 3 || opcion == 0);
+}
+
+void responderCuestionarios(){
+    printf("\nSeleccionado Responder Cuestionaros\n");
+}
+
+void generarInformesPaciente(){
+    printf("\nSeleccionado Visualizar datos de las consultas\n");
+}
