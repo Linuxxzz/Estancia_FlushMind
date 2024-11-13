@@ -14,10 +14,6 @@ typedef struct Admin{
     char login[100];
 }Administrador;
 
-
-
-
-//Comentario de lemus
 typedef struct Med{
     int estado;
     char nombre[50];
@@ -558,7 +554,7 @@ void registrarMedico(){
 }
 
 void actualizarInformacionMedico(){
-    Medico med;
+    Medico med, medicoBuscado;
     FILE *ptrmedicos = fopen("registroMedico.bin", "rb");
     int opcion, i;
     char respuesta[100];
@@ -590,6 +586,7 @@ void actualizarInformacionMedico(){
                 fread(&med, sizeof(Medico), 1, ptrmedicos);
                 do{
                     if (strcmp(opc, med.nombre) == 0){
+                        strcpy(medicoBuscado.nombre, med.nombre);
                         printf("\nNombre: %s", med.nombre);
                         printf("\nCedula: %s", med.cedula);
                         printf("\nDireccion: %s", med.direccion);
@@ -625,59 +622,81 @@ void actualizarInformacionMedico(){
                                 printf("\nIngrese el nuevo nombre completo: ");
                                 scanf("%[^\n]%*c", med.nombre);
                                 fflush(stdin);
+                                do{
                                     do{
-                                        do{
-                                            printf("Ingrese la nueva contraseña (Ingrese minimo 5 caracteres): ");
-                                            scanf("%[^\n]%*c", med.login);
-                                            fflush(stdin);
-                                            longitud = strlen(med.login);
-                                            if (longitud < 5){
-                                                printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
-                                            }
-                                        } while (longitud < 5);
+                                        printf("Ingrese la nueva contraseña (Ingrese minimo 5 caracteres): ");
+                                        scanf("%[^\n]%*c", med.login);
+                                        fflush(stdin);
+                                        longitud = strlen(med.login);
+                                        if (longitud < 5){
+                                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                        }
+                                    } while (longitud < 5);
                                     printf("Vuelva a ingresar la nueva contraseña: ");
                                     scanf("%[^\n]%*c", contra);
                                     fflush(stdin);
                                     if (strcmp(med.login, contra) != 0){
                                         printf("Las contraseñas no coinciden, intentalo nuevamente\n");
                                     }
-                                    } while (strcmp(med.login, contra) != 0);
-                                    do{
-                                        printf("Cedula profesional (8 caracteres): ");
-                                        scanf("%[^\n]%*c", med.cedula);
-                                        fflush(stdin);
-                                        longitud = strlen(med.cedula);
-                                        if (longitud != 8){
-                                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
-                                        }
-                                    } while (longitud != 8);
-                                    printf("Direccion: ");
-                                    scanf("%[^\n]%*c", med.direccion);
+                                } while (strcmp(med.login, contra) != 0);
+                                do{
+                                    printf("Cedula profesional (8 caracteres): ");
+                                    scanf("%[^\n]%*c", med.cedula);
                                     fflush(stdin);
-                                    do{
-                                        printf("Telefono(10 digitos): ");
-                                        scanf("%[^\n]%*c", med.telefono);
-                                        fflush(stdin);
-                                        if(strlen(med.telefono) == 10){
-                                            for (i = 0; i < (int)strlen(med.telefono); i++){
-                                                if(!isdigit(med.telefono[i])){
-                                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
-                                                    opcion = 0;
-                                                    break;
-                                                }
-                                                opcion = 1;
+                                    longitud = strlen(med.cedula);
+                                    if (longitud != 8){
+                                        printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    }
+                                } while (longitud != 8);
+                                printf("Direccion: ");
+                                scanf("%[^\n]%*c", med.direccion);
+                                fflush(stdin);
+                                do{
+                                    printf("Telefono(10 digitos): ");
+                                    scanf("%[^\n]%*c", med.telefono);
+                                    fflush(stdin);
+                                    if(strlen(med.telefono) == 10){
+                                        for (i = 0; i < (int)strlen(med.telefono); i++){
+                                            if(!isdigit(med.telefono[i])){
+                                                printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                                opcion = 0;
+                                                break;
                                             }
-                                        }else{
-                                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
-                                            opcion = 0;
+                                            opcion = 1;
                                         }
-                                    }while(opcion != 1);
-                                    printf("Correo electronico: ");
-                                    scanf("%[^\n]%*c", med.correo);
-                                    fflush(stdin);
-                                    printf("Informacion actualizada con exito\n");
-                                    fseek(ptrmedicos,-(long)sizeof(Medico),SEEK_CUR);
-                                    fwrite(&med, sizeof(Medico), 1, ptrmedicos);
+                                    }else{
+                                        printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                        opcion = 0;
+                                    }
+                                }while(opcion != 1);
+                                printf("Correo electronico: ");
+                                scanf("%[^\n]%*c", med.correo);
+                                fflush(stdin);
+                                printf("Informacion actualizada con exito\n");
+                                fseek(ptrmedicos,-(long)sizeof(Medico),SEEK_CUR);
+                                fwrite(&med, sizeof(Medico), 1, ptrmedicos);
+                                FILE *modName = fopen("registroPaciente.bin", "r+b");
+                                Paciente auxiliar;
+                                fread(&auxiliar, sizeof(Paciente), 1, modName);
+                                do{
+                                    if(strcmp(auxiliar.medico, medicoBuscado.nombre) == 0){
+                                        FILE *lectura = fopen("registroPaciente.bin", "r+b");
+                                        Paciente auxiliar2;
+                                        strcpy(auxiliar.medico, med.nombre);
+                                        fread(&auxiliar2, sizeof(Paciente), 1, lectura);
+                                        do{
+                                            if(strcmp(auxiliar2.medico, medicoBuscado.nombre) == 0){
+                                                fseek(lectura,-(long)sizeof(Paciente),SEEK_CUR);
+                                                fwrite(&auxiliar, sizeof(Paciente), 1, lectura);
+                                                break;
+                                            }
+                                            fread(&auxiliar2, sizeof(Paciente), 1, lectura);
+                                        } while (feof(lectura) == 0);
+                                        fclose(lectura);
+                                    }
+                                    fread(&auxiliar, sizeof(Paciente), 1, modName);
+                                } while (feof(modName) == 0);
+                                fclose(modName);
                             }   
                         break;
                     }else{
@@ -1171,9 +1190,19 @@ void modificarInformacionMedico(Medico **medico){
         fread(&auxiliar, sizeof(Paciente), 1, modName);
         do{
             if(strcmp(auxiliar.medico, medicoBuscado.nombre) == 0){
-                fseek(modName,-(long)sizeof(Paciente),SEEK_CUR);
+                FILE *lectura = fopen("registroPaciente.bin", "r+b");
+                Paciente auxiliar2;
                 strcpy(auxiliar.medico, (*medico)->nombre);
-                fwrite(&auxiliar, sizeof(Paciente), 1, modName);
+                fread(&auxiliar2, sizeof(Paciente), 1, lectura);
+                do{
+                    if(strcmp(auxiliar2.medico, medicoBuscado.nombre) == 0){
+                        fseek(lectura,-(long)sizeof(Paciente),SEEK_CUR);
+                        fwrite(&auxiliar, sizeof(Paciente), 1, lectura);
+                        break;
+                    }
+                    fread(&auxiliar2, sizeof(Paciente), 1, lectura);
+                } while (feof(lectura) == 0);
+                fclose(lectura);
             }
             fread(&auxiliar, sizeof(Paciente), 1, modName);
         } while (feof(modName) == 0);
@@ -1334,7 +1363,7 @@ void registrarPaciente(Medico *medico){
 }
 
 void actualizarInformacionPaciente(Medico *medico){
-    Paciente pac;
+    Paciente pac, pacienteBuscado;
     FILE *ptrpacientes = fopen("registroPaciente.bin", "rb");
     int opcion, i;
     char respuesta[100];
@@ -1368,6 +1397,7 @@ void actualizarInformacionPaciente(Medico *medico){
                 fread(&pac, sizeof(Paciente), 1, ptrpacientes);
                 do{
                     if ((strcmp(opc, pac.nombre) == 0) && (strcmp(medico->nombre, pac.medico) == 0)){
+                        strcpy(pacienteBuscado.nombre, pac.nombre);
                         printf("\n              Modificar informacion personal\n");
                         printf("\nNombre: %s", pac.nombre);
                         printf("\nNSS: %s", pac.nss);
@@ -1454,6 +1484,29 @@ void actualizarInformacionPaciente(Medico *medico){
                                     printf("Informacion actualizada con exito\n");
                                     fseek(ptrpacientes,-(long)sizeof(Paciente),SEEK_CUR);
                                     fwrite(&pac, sizeof(Paciente), 1, ptrpacientes);
+
+                                FILE *modName = fopen("registroCuestionarios.bin", "r+b");
+                                Cuestionarios auxiliar;
+                                fread(&auxiliar, sizeof(Cuestionarios), 1, modName);
+                                do{
+                                    if(strcmp(auxiliar.paciente, pacienteBuscado.nombre) == 0){
+                                        FILE *lectura = fopen("registroCuestionarios.bin", "r+b");
+                                        Cuestionarios auxiliar2;
+                                        strcpy(auxiliar.paciente, pac.nombre);
+                                        fread(&auxiliar2, sizeof(Cuestionarios), 1, lectura);
+                                        do{
+                                            if(strcmp(auxiliar2.paciente, pacienteBuscado.nombre) == 0){
+                                                fseek(lectura,-(long)sizeof(Cuestionarios),SEEK_CUR);
+                                                fwrite(&auxiliar, sizeof(Cuestionarios), 1, lectura);
+                                                break;
+                                            }
+                                            fread(&auxiliar2, sizeof(Cuestionarios), 1, lectura);
+                                        } while (feof(lectura) == 0);
+                                        fclose(lectura);
+                                    }
+                                    fread(&auxiliar, sizeof(Cuestionarios), 1, modName);
+                                } while (feof(modName) == 0);
+                                fclose(modName);
                             }   
                         break;
                     }else{
