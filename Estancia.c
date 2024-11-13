@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <time.h>
-
+//Hola
 typedef struct Admin{
     int estado;
     char nombre[50];
