@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <time.h>
 //Comentario ejemplo de commit
+//Comentario de prueba alv
 typedef struct Admin{
     int estado;
     char nombre[50];
