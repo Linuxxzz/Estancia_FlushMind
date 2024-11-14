@@ -65,7 +65,7 @@ void evaluarPaciente(Medico *);
 void evaluacion(Paciente *);
 void registrarConsulta(Paciente *);
 void observaciones(Paciente *);
-void asignarCuestionarios();
+void asignarCuestionarios(Paciente *);
 void verResultados();
 void eliminarPaciente(Medico *);
 void generarInformesMedico();
@@ -1729,7 +1729,7 @@ void evaluacion(Paciente *ptrpaciente){
                     observaciones(ptrpaciente);
                     break;
                 case 3:
-                    asignarCuestionarios();
+                    asignarCuestionarios(ptrpaciente);
                     break;
                 case 4:
                     verResultados();
@@ -1796,7 +1796,6 @@ void observaciones(Paciente *ptrpaciente){
     Cuestionarios cues;
     int opcion, i, cont;
     char respuesta[100];
-    char opc[100];
     char negativo[] = ("Salir");
     if (ptrCuestionarios == NULL){
         printf("\nNo hay ninguna consulta registrada, vuelva cuando registre alguna consulta.\n");
@@ -1807,12 +1806,12 @@ void observaciones(Paciente *ptrpaciente){
     printf("\n¿A que fecha desea agregar observaciones?\n");
     do{
         cont = 1;
-        printf("\nEscriba el numero de la fecha de la consulta");
+        printf("\nEscriba el numero de la fecha de la consulta\n");
         ptrCuestionarios = fopen("registroCuestionarios.bin", "rb");
         fread(&cues, sizeof(Cuestionarios), 1, ptrCuestionarios);
         do{
             if (strcmp(ptrpaciente->nombre, cues.paciente) == 0){
-                printf("\n%d) %s", cont, cues.fecha);
+                printf("%d) %s", cont, cues.fecha);
                 cont++;
             }
             fread(&cues, sizeof(Cuestionarios), 1, ptrCuestionarios);
@@ -1863,107 +1862,103 @@ void observaciones(Paciente *ptrpaciente){
     } while (feof(ptrcues) == 0);
 }
 
-void asignarCuestionarios(){
-    printf("\nSeleccionado Asignar cuestionarios\n");
+void asignarCuestionarios(Paciente *ptrpaciente){
+    FILE *ptrCuestionarios = fopen("registroCuestionarios.bin", "rb");
+    Cuestionarios cues;
+    int opcion, i, cont;
+    char respuesta[100];
+    char negativo[] = ("Salir");
+    if (ptrCuestionarios == NULL){
+        printf("\nNo hay ninguna consulta registrada, vuelva cuando registre alguna consulta.\n");
+        fclose(ptrCuestionarios);
+        return;
+    }
+    fclose(ptrCuestionarios);
+    printf("\n¿A que fecha desea agregar un cuestionario?\n");
+    do{
+        cont = 1;
+        printf("\nEscriba el numero de la fecha de la consulta\n");
+        ptrCuestionarios = fopen("registroCuestionarios.bin", "rb");
+        fread(&cues, sizeof(Cuestionarios), 1, ptrCuestionarios);
+        do{
+            if ((strcmp(ptrpaciente->nombre, cues.paciente) == 0) && (cues.estado == 0)){
+                printf("%d) %s", cont, cues.fecha);
+                cont++;
+            }
+            fread(&cues, sizeof(Cuestionarios), 1, ptrCuestionarios);
+        } while (feof(ptrCuestionarios) == 0);
+        fclose(ptrCuestionarios);
+        printf("(Si desea detener esta accion escriba 'Salir')\n");
+        fflush(stdin);
+        scanf("%[^\n]%*c", respuesta);
+        opcion = atoi(respuesta);
+        fflush(stdin);   
+        if (strcmp(respuesta, negativo) == 0){
+            return;
+        }
+        if (opcion < 1 || opcion > (cont - 1)){
+            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+            opcion = 0;
+            fflush(stdin);
+        }else{
+            for (i = 0; i < (int)strlen(respuesta); i++){
+                if (!isdigit(respuesta[i])){
+                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                    opcion = 0;
+                    break;
+                }
+            }
+        }
+    } while (opcion == 0);
+    cont = 1;
+    FILE *ptrcues = fopen("registroCuestionarios.bin", "r+b");
+    fread(&cues, sizeof(Cuestionarios), 1, ptrcues);
+    do{
+        if ((strcmp(ptrpaciente->nombre, cues.paciente) == 0) && (cues.estado == 0)){
+            if (opcion == cont){
+                fseek(ptrcues, -(long)sizeof(Cuestionarios), SEEK_CUR);
+                do{
+                    printf("Escriba el numero del cuestionario que desea agregar");
+                    printf("\n1) Cuestionario 1");
+                    printf("\n2) Cuestionario 2");
+                    printf("\n3) Cuestionario 3");
+                    printf("\n4) Cuestionario 4");
+                    printf("\n5) Salir\n     ");
+                    fflush(stdin);
+                    scanf("%[^\n]%*c", respuesta);
+                    fflush(stdin);
+                    cues.cuestionario = atoi(respuesta);
+                    fflush(stdin);   
+                    if (cues.cuestionario < 1 || cues.cuestionario > 5){
+                        printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                        cues.cuestionario = 0;
+                        fflush(stdin);
+                    }else{
+                        for (i = 0; i < (int)strlen(respuesta); i++){
+                            if (!isdigit(respuesta[i])){
+                                printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                cues.cuestionario = 0;
+                                break;
+                            }
+                        }
+                    }
+                } while (cues.cuestionario == 0);
+                cues.estado = 0;
+                fwrite(&cues, sizeof(Cuestionarios), 1, ptrCuestionarios);
+                fclose(ptrcues);
+                printf("Agregado de forma exitosa\n");
+                break;
+            }else{
+                cont++;
+            }
+        }
+        fread(&cues, sizeof(Cuestionarios), 1, ptrcues);
+    } while (feof(ptrcues) == 0);
 }
 
 void verResultados(){
     printf("\nSeleccionado Ver resultados\n");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
