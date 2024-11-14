@@ -1960,89 +1960,6 @@ void verResultados(){
     printf("\nSeleccionado Ver resultados\n");
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
 void eliminarPaciente(Medico *medico){
     Paciente paciente, copiaPaciente;
     FILE *ptrpaciente = fopen("registroPaciente.bin", "rb");
@@ -2073,15 +1990,10 @@ void eliminarPaciente(Medico *medico){
             fflush(stdin);    
             scanf("%[^\n]%*c", opc);
             if (strcmp(opc, negativo) != 0){
-                printf("\n1");
                 ptrpaciente = fopen("registroPaciente.bin", "r+b");
-                printf("\n2");
                 fread(&copiaPaciente, sizeof(Paciente), 1, ptrpaciente);
-                printf("\n3");
                 contador = 1;
-                printf("\n4");
                 do{
-                    printf("\n5");
                     if ((strcmp(opc, copiaPaciente.nombre) == 0)&&(strcmp(medico->nombre, copiaPaciente.medico) == 0)){
                             do{
                                 respuesta[0] = '0';
@@ -2138,21 +2050,6 @@ void eliminarPaciente(Medico *medico){
         printf("Saliendo al menu Gestionar pacientes\n");
     }
 }
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
-//Alan
 
 //Eder
 //Eder
@@ -2282,6 +2179,36 @@ void responderCuestionarios(){
     printf("\nSeleccionado Responder Cuestionaros\n");
 }
 
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
 void generarInformesPaciente(){
     printf("\nSeleccionado Visualizar datos de las consultas\n");
 }
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
+//Eder
