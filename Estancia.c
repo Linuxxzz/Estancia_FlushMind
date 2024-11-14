@@ -64,7 +64,7 @@ void cambiarEstatusPaciente(Medico *);
 void evaluarPaciente(Medico *);
 void evaluacion(Paciente *);
 void registrarConsulta(Paciente *);
-void observaciones();
+void observaciones(Paciente *);
 void asignarCuestionarios();
 void verResultados();
 void eliminarPaciente(Medico *);
@@ -1726,7 +1726,7 @@ void evaluacion(Paciente *ptrpaciente){
                     registrarConsulta(ptrpaciente);
                     break;
                 case 2:
-                    observaciones();
+                    observaciones(ptrpaciente);
                     break;
                 case 3:
                     asignarCuestionarios();
@@ -1791,8 +1791,76 @@ void registrarConsulta(Paciente *ptrpaciente){
     }
 }
 
-void observaciones(){
-    printf("\nSeleccionado Observaciones\n");
+void observaciones(Paciente *ptrpaciente){
+    FILE *ptrCuestionarios = fopen("registroCuestionarios.bin", "rb");
+    Cuestionarios cues;
+    int opcion, i, cont;
+    char respuesta[100];
+    char opc[100];
+    char negativo[] = ("Salir");
+    if (ptrCuestionarios == NULL){
+        printf("\nNo hay ninguna consulta registrada, vuelva cuando registre alguna consulta.\n");
+        fclose(ptrCuestionarios);
+        return;
+    }
+    fclose(ptrCuestionarios);
+    printf("\n¿A que fecha desea agregar observaciones?\n");
+    do{
+        cont = 1;
+        printf("\nEscriba el numero de la fecha de la consulta");
+        ptrCuestionarios = fopen("registroCuestionarios.bin", "rb");
+        fread(&cues, sizeof(Cuestionarios), 1, ptrCuestionarios);
+        do{
+            if (strcmp(ptrpaciente->nombre, cues.paciente) == 0){
+                printf("\n%d) %s", cont, cues.fecha);
+                cont++;
+            }
+            fread(&cues, sizeof(Cuestionarios), 1, ptrCuestionarios);
+        } while (feof(ptrCuestionarios) == 0);
+        fclose(ptrCuestionarios);
+        printf("(Si desea detener esta accion escriba 'Salir')\n");
+        fflush(stdin);
+        scanf("%[^\n]%*c", respuesta);
+        opcion = atoi(respuesta);
+        fflush(stdin);   
+        if (strcmp(respuesta, negativo) == 0){
+            return;
+        }
+        if (opcion < 1 || opcion > (cont - 1)){
+            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+            opcion = 0;
+            fflush(stdin);
+        }else{
+            for (i = 0; i < (int)strlen(respuesta); i++){
+                if (!isdigit(respuesta[i])){
+                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                    opcion = 0;
+                    break;
+                }
+            }
+        }
+    } while (opcion == 0);
+    cont = 1;
+    FILE *ptrcues = fopen("registroCuestionarios.bin", "r+b");
+    fread(&cues, sizeof(Cuestionarios), 1, ptrcues);
+    do{
+        if (strcmp(ptrpaciente->nombre, cues.paciente) == 0){
+            if (opcion == cont){
+                fseek(ptrcues, -(long)sizeof(Cuestionarios), SEEK_CUR);
+                printf("A continuacion escriba las observacioneo recomendaciones que desee agregar\n");
+                fflush(stdin);
+                scanf("%[^\n]%*c", cues.observaciones);
+                fflush(stdin);
+                fwrite(&cues, sizeof(Cuestionarios), 1, ptrCuestionarios);
+                fclose(ptrcues);
+                printf("Agregado de forma exitosa\n");
+                return;
+            }else{
+                cont++;
+            }
+        }
+        fread(&cues, sizeof(Cuestionarios), 1, ptrcues);
+    } while (feof(ptrcues) == 0);
 }
 
 void asignarCuestionarios(){
