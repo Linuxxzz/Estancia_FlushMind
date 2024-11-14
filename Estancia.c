@@ -2023,6 +2023,11 @@ void verResultados(){
 
 
 
+
+
+
+
+
 //Alan
 //Alan
 //Alan
@@ -2039,7 +2044,99 @@ void verResultados(){
 //Alan
 //Alan
 void eliminarPaciente(Medico *medico){
-    printf("\nEliminar pacientes\n");
+    Paciente paciente, copiaPaciente;
+    FILE *ptrpaciente = fopen("registroPaciente.bin", "rb");
+    int opcion, i, contador;
+    char respuesta[100];
+    char opc[100];
+    char negativo[] = ("Salir");
+    if (ptrpaciente == NULL){
+        printf("\nNo hay pacientes registrados por el momento, regrese cuando alla registrado a algun medico\n");
+        fclose(ptrpaciente);
+    }else{
+        fclose(ptrpaciente);
+        printf("\n                     Eliminar paciente\n");
+        printf("\n¿Que paciente desea eliminar?");
+        printf("\n(Escriba el nombre del paciente)");
+        do{
+            opc[0] = '0';
+            ptrpaciente = fopen("registroPaciente.bin", "rb");
+            fread(&paciente, sizeof(Paciente), 1, ptrpaciente);
+            do{
+                if (strcmp(medico->nombre, paciente.medico) == 0){
+                    printf("\n%s ", paciente.nombre);
+                }
+                fread(&paciente, sizeof(Paciente), 1, ptrpaciente);
+            } while (feof(ptrpaciente) == 0);
+            fclose(ptrpaciente);
+            printf("\n(Si desea detener esta accion escriba 'Salir')\n");
+            fflush(stdin);    
+            scanf("%[^\n]%*c", opc);
+            if (strcmp(opc, negativo) != 0){
+                printf("\n1");
+                ptrpaciente = fopen("registroPaciente.bin", "r+b");
+                printf("\n2");
+                fread(&copiaPaciente, sizeof(Paciente), 1, ptrpaciente);
+                printf("\n3");
+                contador = 1;
+                printf("\n4");
+                do{
+                    printf("\n5");
+                    if ((strcmp(opc, copiaPaciente.nombre) == 0)&&(strcmp(medico->nombre, copiaPaciente.medico) == 0)){
+                            do{
+                                respuesta[0] = '0';
+                                printf("¿Estas seguro de eliminar a este paciente?");
+                                printf("\n[%s]     1)Si    2)No     ", copiaPaciente.nombre);
+                                fflush(stdin);
+                                scanf("%[^\n]%*c", respuesta);
+                                opcion = atoi(respuesta);
+                                fflush(stdin);
+                                if (opcion != 1 && opcion != 2){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    fflush(stdin);
+                                }else{
+                                    for (i = 0; i < (int)strlen(respuesta); i++){
+                                        if (!isdigit(respuesta[i])){
+                                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                            opcion = 0;
+                                            break;
+                                        }
+                                    }
+                                }
+                            } while (opcion != 1 && opcion != 2);
+                            if (opcion == 1){
+                                FILE *copiaptrPaciente = fopen("registroPacienteCopia.bin", "wb");;
+                                fseek(ptrpaciente, contador * -(long)sizeof(Paciente), SEEK_CUR);
+                                fread(&paciente, sizeof(Paciente), 1, ptrpaciente);
+                                do{
+                                    if(strcmp(copiaPaciente.nombre, paciente.nombre) != 0){
+                                        fwrite(&paciente, sizeof(Paciente), 1, copiaptrPaciente);
+                                    }
+                                    fread(&paciente, sizeof(Paciente), 1, ptrpaciente);
+                                } while (feof(ptrpaciente) == 0);
+                                fclose(ptrpaciente);
+                                fclose(copiaptrPaciente);
+                                remove("registroPaciente.bin");
+                                rename("registroPacienteCopia.bin", "registroPaciente.bin");
+                            }
+                        
+                        break;
+                    }else{
+                        fread(&copiaPaciente, sizeof(Paciente), 1, ptrpaciente);
+                        opcion = 0;
+                        contador++;
+                    }
+                } while (feof(ptrpaciente) == 0);
+                if (opcion == 0){
+                    printf("Paciente no encontrado, intentelo nuevamente");
+                }
+            }else{
+                opcion = 1;
+            }
+            fclose(ptrpaciente);
+        } while (opcion == 0 || opcion == 2);
+        printf("Saliendo al menu Gestionar pacientes\n");
+    }
 }
 //Alan
 //Alan
