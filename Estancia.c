@@ -333,7 +333,7 @@ void loginAdministrador(){
         intentos++;
         if(intentos == 3){
             printf("\nHas alcanzado el maximo de intentos\n");
-            main();
+            return;
         }
     }while(Admin.estado == 100);
     menuAdministrador(&Admin);
@@ -548,6 +548,7 @@ void registrarMedico(){
     fflush(stdin);
     scanf("%[^\n]%*c", med.correo);
     registrarMedico = fopen("registroMedico.bin", "ab");
+    printf("Medico agregado con exito!");
     fseek(registrarMedico, sizeof(Medico), SEEK_END);
     fwrite(&med, sizeof(Medico), 1, registrarMedico);
     fclose(registrarMedico);
@@ -1013,7 +1014,7 @@ void loginMedico(){
         intentos++;
         if(intentos == 3){
             printf("\nHas alcanzado el maximo de intentos\n");
-            main();
+            return;
         }
     }while(Med.estado == 100);
     menuMedico(&Med);
@@ -2104,7 +2105,7 @@ void loginPaciente(){
         intentos++;
         if(intentos == 3){
             printf("\nHas alcanzado el maximo de intentos\n");
-            main();
+            return;
         }
     }while(Pac.estado == 100);
     menuPaciente(&Pac);
