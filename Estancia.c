@@ -1993,19 +1993,13 @@ void verResultados(Paciente *ptrpaciente){
     fclose(ptrCuestionarios);
     ptrCuestionarios = fopen("registroCuestionarios.bin", "rb");
     fread(&cues, sizeof(Cuestionarios), 1, ptrCuestionarios);
-    printf("\n1");
     do{
-        printf("\n2");
         if (cues.cuestionario == 1 && cues.estado == 1 && strcmp(cues.paciente, ptrpaciente->nombre) == 0){
-            printf("\n3");
             ptrBeck = fopen("registroBeck.bin", "rb");
             if (ptrBeck != NULL){
-                printf("\n4");
                 fread(&preg, sizeof(Beck), 1, ptrBeck);
                 do{
-                    printf("\n5");
                     if ((strcmp(cues.paciente, preg.paciete) == 0) && (strcmp(cues.fecha, preg.fecha) == 0)){
-                        printf("\n6");
                         printf("\nFecha de la consulta %s", cues.fecha);
                         printf("Cuestionario de beck, puntuacion: %d/63", cues.puntuacion);
                         if (cues.puntuacion <= 13){
