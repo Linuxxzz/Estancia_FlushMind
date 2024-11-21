@@ -36,11 +36,27 @@ typedef struct Pac{
 
 typedef struct Cues{
     int estado;
+    int puntuacion;
     int cuestionario;
     char paciente[50];
     char observaciones[1000];
     char fecha[40];
 }Cuestionarios;
+
+struct preguntasBeck{
+    char pregunta[100];
+};
+
+struct respuestasBeck{
+    char respuesta[150];
+};
+
+typedef struct Bec{
+    char paciete[50];
+    char fecha[40];
+    struct preguntasBeck pregunta[21];    
+    struct respuestasBeck respuesta[21];
+}Beck;
 
 void continuar();
 void registroAdministrador(int, Administrador *);
@@ -66,13 +82,13 @@ void evaluacion(Paciente *);
 void registrarConsulta(Paciente *);
 void observaciones(Paciente *);
 void asignarCuestionarios(Paciente *);
-void verResultados();
+void verResultados(Paciente *);
 void eliminarPaciente(Medico *);
 void generarInformesMedico();
 void loginPaciente();
 Paciente validarloginpaci(char[], char[]);
 void menuPaciente(Paciente *);
-void responderCuestionarios();
+void responderCuestionarios(Paciente *);
 void generarInformesPaciente();
 
 int main(){
@@ -995,7 +1011,7 @@ void continuar(){
     scanf("%d%*c", &conti);
 }
 
-void loginMedico(){
+void loginMedico(){ 
     printf("\nLogin Medico\n");
     Medico Med;
     char nombreA[100];
@@ -1733,7 +1749,7 @@ void evaluacion(Paciente *ptrpaciente){
                     asignarCuestionarios(ptrpaciente);
                     break;
                 case 4:
-                    verResultados();
+                    verResultados(ptrpaciente);
                     break;
             }
         }else{
@@ -1920,11 +1936,11 @@ void asignarCuestionarios(Paciente *ptrpaciente){
                 fseek(ptrcues, -(long)sizeof(Cuestionarios), SEEK_CUR);
                 do{
                     printf("Escriba el numero del cuestionario que desea agregar");
-                    printf("\n1) Cuestionario 1");
-                    printf("\n2) Cuestionario 2");
-                    printf("\n3) Cuestionario 3");
-                    printf("\n4) Cuestionario 4");
-                    printf("\n5) Salir\n     ");
+                    printf("\n1) Cuestionario de Beck");
+                    printf("\n2) Cuestionario de Depresión Mayor (MDI)");
+                    printf("\n3) Cuestionario de de Zung");
+                    printf("\n4) Cuestionario PHQ-9");
+                    printf("\n5) Salir\n");
                     fflush(stdin);
                     scanf("%[^\n]%*c", respuesta);
                     fflush(stdin);
@@ -1957,8 +1973,68 @@ void asignarCuestionarios(Paciente *ptrpaciente){
     } while (feof(ptrcues) == 0);
 }
 
-void verResultados(){
-    printf("\nSeleccionado Ver resultados\n");
+void verResultados(Paciente *ptrpaciente){
+    printf("\nVer resultados\n");
+    FILE *ptrCuestionarios = fopen("registroCuestionarios.bin", "rb");
+    FILE *ptrBeck;
+    Cuestionarios cues;
+    Beck preg;
+    int i;
+    /*
+    int opcion, i, cont;
+    char respuesta[100];
+    char negativo[] = ("Salir");
+    */
+    if (ptrCuestionarios == NULL){
+        printf("\nNo hay ninguna consulta registrada, vuelva cuando registre alguna consulta.\n");
+        fclose(ptrCuestionarios);
+        return;
+    }
+    fclose(ptrCuestionarios);
+    ptrCuestionarios = fopen("registroCuestionarios.bin", "rb");
+    fread(&cues, sizeof(Cuestionarios), 1, ptrCuestionarios);
+    printf("\n1");
+    do{
+        printf("\n2");
+        if (cues.cuestionario == 1 && cues.estado == 1 && strcmp(cues.paciente, ptrpaciente->nombre) == 0){
+            printf("\n3");
+            ptrBeck = fopen("registroBeck.bin", "rb");
+            if (ptrBeck != NULL){
+                printf("\n4");
+                fread(&preg, sizeof(Beck), 1, ptrBeck);
+                do{
+                    printf("\n5");
+                    if ((strcmp(cues.paciente, preg.paciete) == 0) && (strcmp(cues.fecha, preg.fecha) == 0)){
+                        printf("\n6");
+                        printf("\nFecha de la consulta %s", cues.fecha);
+                        printf("Cuestionario de beck, puntuacion: %d/63", cues.puntuacion);
+                        if (cues.puntuacion <= 13){
+                            printf("\nDepresion leve");
+                        }
+                        if (cues.puntuacion >= 14 && cues.puntuacion <= 19){
+                            printf("\nDepresion moderada");
+                        }
+                        if (cues.puntuacion >= 20 && cues.puntuacion <= 28){
+                            printf("\nDepresion moderada-severa");
+                        }
+                        if (cues.puntuacion >= 29){
+                            printf("\nDepresion severa");
+                        }
+                        printf("\nRespuestas");
+                        for (i = 0; i < 21; i++){
+                            printf("\n%s", preg.pregunta[i].pregunta);
+                            printf("\n%s", preg.respuesta[i].respuesta);
+                        }
+                        printf("\n");
+                    }
+                    fread(&preg, sizeof(Beck), 1, ptrBeck);
+                } while (feof(ptrBeck) == 0);
+                fclose(ptrBeck);
+            }
+        }
+        fread(&cues, sizeof(Cuestionarios), 1, ptrCuestionarios);
+    } while (feof(ptrCuestionarios) == 0);
+    
 }
 
 void eliminarPaciente(Medico *medico){
@@ -1969,7 +2045,7 @@ void eliminarPaciente(Medico *medico){
     char opc[100];
     char negativo[] = ("Salir");
     if (ptrpaciente == NULL){
-        printf("\nNo hay pacientes registrados por el momento, regrese cuando alla registrado a algun medico\n");
+        printf("\nNo hay pacientes registrados por el momento, regrese cuando alla registrado a algun paciente\n");
         fclose(ptrpaciente);
     }else{
         fclose(ptrpaciente);
@@ -2019,7 +2095,7 @@ void eliminarPaciente(Medico *medico){
                             } while (opcion != 1 && opcion != 2);
                             if (opcion == 1){
                                 FILE *copiaptrPaciente = fopen("registroPacienteCopia.bin", "wb");;
-                                fseek(ptrpaciente, contador * -(long)sizeof(Paciente), SEEK_CUR);
+                                fseek(ptrpaciente, contador *-(long)sizeof(Paciente), SEEK_CUR);
                                 fread(&paciente, sizeof(Paciente), 1, ptrpaciente);
                                 do{
                                     if(strcmp(copiaPaciente.nombre, paciente.nombre) != 0){
@@ -2032,7 +2108,6 @@ void eliminarPaciente(Medico *medico){
                                 remove("registroPaciente.bin");
                                 rename("registroPacienteCopia.bin", "registroPaciente.bin");
                             }
-                        
                         break;
                     }else{
                         fread(&copiaPaciente, sizeof(Paciente), 1, ptrpaciente);
@@ -2120,7 +2195,7 @@ Paciente validarloginpaci(char nombre[100], char login[100]){
         Pacie.estado = -100;
         return Pacie;
     }
-        fread(&Pacie, sizeof(Paciente),1,archivo);
+    fread(&Pacie, sizeof(Paciente), 1, archivo);
     while(!feof(archivo)){
         if((strcmp(nombre, Pacie.nombre) == 0)&&(strcmp(login, Pacie.login) == 0)){
             existe = 1;
@@ -2159,7 +2234,7 @@ void menuPaciente(Paciente *ptrpac){
             }
             switch (opcion){
                 case 1:
-                    responderCuestionarios();
+                    responderCuestionarios(ptrpac);
                     break;
                 case 2:
                     generarInformesPaciente();
@@ -2176,8 +2251,920 @@ void menuPaciente(Paciente *ptrpac){
     }while (opcion != 3 || opcion == 0);
 }
 
-void responderCuestionarios(){
-    printf("\nSeleccionado Responder Cuestionaros\n");
+void responderCuestionarios(Paciente *ptrpac){
+    printf("\nResponder Cuestionaros\n");
+    FILE *BECK = fopen("registroBeck.bin", "rb");
+    if (BECK == NULL){
+        fclose(BECK);
+        BECK = fopen("registroBeck.bin", "wb");
+        fclose(BECK);
+    }
+    fclose(BECK);
+    FILE *cuestionario = fopen("registroCuestionarios.bin", "rb");
+    Cuestionarios cues;
+    Beck beck;
+    int opcion, i, cont, respuesta, puntuacion, lecturas;
+    int repeticiones[100];
+    char opc[100];
+    char resp[100];
+    struct test{
+        int test;
+    }Preguntas[100];
+    if (cuestionario == NULL){
+        printf("\nNo hay ninguna consulta registrada, vuelva cuando registre alguna consulta.\n");
+        fclose(cuestionario);
+        return;
+    }
+    fclose(cuestionario);
+    do{
+        printf("\nSeleccione el numero del cuestionario que desea responder.");
+        cont = 0;
+        cuestionario = fopen("registroCuestionarios.bin", "r+b");
+        fread(&cues, sizeof(Cuestionarios), 1, cuestionario);
+        lecturas = 1;
+        while(!feof(cuestionario)){
+            if(cues.estado == 0 && strcmp(cues.paciente, ptrpac->nombre) == 0){
+                switch (cues.cuestionario){
+                    case 1:
+                        repeticiones[cont] = lecturas;
+                        cont++;
+                        printf("\n%d) Cuestionario de beck", cont);
+                        Preguntas[cont-1].test = 1;
+                        break;
+                    case 2:
+                        repeticiones[cont] = lecturas;
+                        cont++;
+                        printf("\n%d) Cuestionario de Depresión Mayor (MDI)", cont);
+                        Preguntas[cont-1].test = 2;
+                        break;
+                    case 3:
+                        repeticiones[cont] = lecturas;
+                        cont++;
+                        printf("\n%d) Cuestionario de de Zung", cont);
+                        Preguntas[cont-1].test = 3;
+                        break;
+                    case 4:
+                        repeticiones[cont] = lecturas;
+                        cont++;
+                        printf("\n%d) Cuestionario PHQ-9", cont);
+                        Preguntas[cont-1].test = 4;
+                        break;
+                }
+            }
+            fread(&cues, sizeof(Cuestionarios), 1, cuestionario);
+            lecturas ++;
+        }
+
+        if (cont == 0){
+            printf("\nNo tienes ningun cuestionario asignado por el momento\n");
+            return;
+        }
+        printf("\n");
+        scanf("%[^\n]%*c", opc);
+        opcion = atoi(opc);
+        if((opcion > 0 && opcion <= cont)){
+            for (i = 0; i < (int)strlen(opc); i++){
+                if(!isdigit(opc[i])){
+                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                    opcion = 0;
+                    break;
+                }
+            }
+            switch (Preguntas[opcion-1].test){
+                case 1:
+                    strcpy(beck.paciete, ptrpac->nombre);
+                    puntuacion = 0;
+                    printf("\nIngrese el numero de la respuesta que mejor describa su situacion");
+                    do{
+                        printf("\n1) Trizteza");
+                        strcpy(beck.pregunta[0].pregunta, "1) Trizteza");
+                        printf("\n1) No me siento triste");
+                        printf("\n2) Me siento triste gran parte del tiempo");
+                        printf("\n3) Me siento triste todo el tiempo");
+                        printf("\n4) Me siento tan triste o soy tan infeliz que no puedo soportarlo\n");
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(beck.respuesta[0].respuesta, "No me siento triste");
+                                    break;
+                                case 2:
+                                    strcpy(beck.respuesta[0].respuesta, "Me siento triste gran parte del tiempo");
+                                    break;
+                                case 3:
+                                    strcpy(beck.respuesta[0].respuesta, "Me siento triste todo el tiempo");
+                                    break;
+                                case 4:
+                                    strcpy(beck.respuesta[0].respuesta, "Me siento tan triste o soy tan infeliz que no puedo soportarlo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        printf("\n2) Pesimismo");
+                        strcpy(beck.pregunta[1].pregunta, "2) Pesimismo");
+                        printf("\n1) No estoy desalentado respecto del mi futuro");
+                        printf("\n2) Me siento más desalentado respecto de mi futuro que lo que solía estarlo");
+                        printf("\n3) No espero que las cosas funcionen para mi");
+                        printf("\n4) Siento que no hay esperanza para mi futuro y que sólo puede empeorar\n");
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(beck.respuesta[1].respuesta, "No estoy desalentado respecto del mi futuro");
+                                    break;
+                                case 2:
+                                    strcpy(beck.respuesta[1].respuesta, "Me siento más desalentado respecto de mi futuro que lo que solía estarlo");
+                                    break;
+                                case 3:
+                                    strcpy(beck.respuesta[1].respuesta, "No espero que las cosas funcionen para mi");
+                                    break;
+                                case 4:
+                                    strcpy(beck.respuesta[1].respuesta, "Siento que no hay esperanza para mi futuro y que sólo puede empeorar");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        printf("\n3) Fracaso");
+                        strcpy(beck.pregunta[2].pregunta, "3) Fracaso");
+                        printf("\n1) No me siento como un fracasado");
+                        printf("\n2) He fracasado más de lo que hubiera debido");
+                        printf("\n3) Cuando miro hacia atrás, veo muchos fracasos");
+                        printf("\n4) Siento que como persona soy un fracaso total\n");
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(beck.respuesta[2].respuesta, "No me siento como un fracasado");
+                                    break;
+                                case 2:
+                                    strcpy(beck.respuesta[2].respuesta, "He fracasado más de lo que hubiera debido");
+                                    break;
+                                case 3:
+                                    strcpy(beck.respuesta[2].respuesta, "Cuando miro hacia atrás, veo muchos fracasos");
+                                    break;
+                                case 4:
+                                    strcpy(beck.respuesta[2].respuesta, "Siento que como persona soy un fracaso total");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        printf("\n4) Perdida de placer");
+                        strcpy(beck.pregunta[3].pregunta, "4) Perdida de placer");
+                        printf("\n1) Obtengo tanto placer como siempre por las cosas de las que disfruto");
+                        printf("\n2) No disfruto tanto de las cosas como solía hacerlo");
+                        printf("\n3) Obtengo muy poco placer de las cosas que solía disfrutar");
+                        printf("\n4) No puedo obtener ningún placer de las cosas de las que solía disfrutar\n");
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(beck.respuesta[3].respuesta, "Obtengo tanto placer como siempre por las cosas de las que disfruto");
+                                    break;
+                                case 2:
+                                    strcpy(beck.respuesta[3].respuesta, "No disfruto tanto de las cosas como solía hacerlo");
+                                    break;
+                                case 3:
+                                    strcpy(beck.respuesta[3].respuesta, "Obtengo muy poco placer de las cosas que solía disfrutar");
+                                    break;
+                                case 4:
+                                    strcpy(beck.respuesta[3].respuesta, "No puedo obtener ningún placer de las cosas de las que solía disfrutar");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        printf("\n5) Sentimientos de culpa");
+                        strcpy(beck.pregunta[4].pregunta, "5) Sentimientos de culpa");
+                        printf("\n1) No me siento particularmente culpable");
+                        printf("\n2) Me siento culpable respecto de varias cosas que he hecho o que debería haber hecho");
+                        printf("\n3) Me siento bastante culpable la mayor parte del tiempo");
+                        printf("\n4) Me siento culpable todo el tiempo\n");
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(beck.respuesta[4].respuesta, "No me siento particularmente culpable");
+                                    break;
+                                case 2:
+                                    strcpy(beck.respuesta[4].respuesta, "Me siento culpable respecto de varias cosas que he hecho o que debería haber hecho");
+                                    break;
+                                case 3:
+                                    strcpy(beck.respuesta[4].respuesta, "Me siento bastante culpable la mayor parte del tiempo");
+                                    break;
+                                case 4:
+                                    strcpy(beck.respuesta[4].respuesta, "Me siento culpable todo el tiempo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        printf("\n6) Sentimientos de castigo");
+                        strcpy(beck.pregunta[5].pregunta, "6) Sentimientos de castigo");
+                        printf("\n1) No siento que este siendo castigado");
+                        printf("\n2) Siento que tal vez pueda ser castigado");
+                        printf("\n3) Espero ser castigado");
+                        printf("\n4) Siento que estoy siendo castigado\n");
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(beck.respuesta[5].respuesta, "No siento que este siendo castigado");
+                                    break;
+                                case 2:
+                                    strcpy(beck.respuesta[5].respuesta, "Siento que tal vez pueda ser castigado");
+                                    break;
+                                case 3:
+                                    strcpy(beck.respuesta[5].respuesta, "Espero ser castigado");
+                                    break;
+                                case 4:
+                                    strcpy(beck.respuesta[5].respuesta, "Siento que estoy siendo castigado");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        printf("\n7) Dsiconformidad con uno mismo");
+                        strcpy(beck.pregunta[6].pregunta, "7) Disconformidad con uno mismo");
+                        printf("\n1) Siento acerca de mi lo mismo que siempre");
+                        printf("\n2) He perdido la confianza en mí mismo");
+                        printf("\n3) Estoy decepcionado conmigo mismo");
+                        printf("\n4) No me gusto a mí mismo\n");
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(beck.respuesta[6].respuesta, "Siento acerca de mi lo mismo que siempre");
+                                    break;
+                                case 2:
+                                    strcpy(beck.respuesta[6].respuesta, "He perdido la confianza en mí mismo");
+                                    break;
+                                case 3:
+                                    strcpy(beck.respuesta[6].respuesta, "Estoy decepcionado conmigo mismo");
+                                    break;
+                                case 4:
+                                    strcpy(beck.respuesta[6].respuesta, "No me gusto a mí mismo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        printf("\n8) Autocritica");
+                        strcpy(beck.pregunta[7].pregunta, "8) Autocritica");
+                        printf("\n1) No me critico ni me culpo más de lo habitual");
+                        printf("\n2) Estoy más crítico conmigo mismo de lo que solía estarlo");
+                        printf("\n3) Me critico a mí mismo por todos mis errores");
+                        printf("\n4) Me culpo a mí mismo por todo lo malo que sucede\n");
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(beck.respuesta[7].respuesta, "No me critico ni me culpo más de lo habitual");
+                                    break;
+                                case 2:
+                                    strcpy(beck.respuesta[7].respuesta, "Estoy más crítico conmigo mismo de lo que solía estarlo");
+                                    break;
+                                case 3:
+                                    strcpy(beck.respuesta[7].respuesta, "Me critico a mí mismo por todos mis errores");
+                                    break;
+                                case 4:
+                                    strcpy(beck.respuesta[7].respuesta, "Me culpo a mí mismo por todo lo malo que sucede");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        printf("\n9) Pensamientos o deseos suicidas");
+                        strcpy(beck.pregunta[8].pregunta, "9) Pensamientos o deseos suicidas");
+                        printf("\n1) No tengo ningún pensamiento de matarme");
+                        printf("\n2) He tenido pensamientos de matarme, pero no lo haría");
+                        printf("\n3) Querría matarme");
+                        printf("\n4) Me mataría si tuviera la oportunidad de hacerlo\n");
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(beck.respuesta[8].respuesta, "No tengo ningún pensamiento de matarme");
+                                    break;
+                                case 2:
+                                    strcpy(beck.respuesta[8].respuesta, "He tenido pensamientos de matarme, pero no lo haría");
+                                    break;
+                                case 3:
+                                    strcpy(beck.respuesta[8].respuesta, "Querría matarme");
+                                    break;
+                                case 4:
+                                    strcpy(beck.respuesta[8].respuesta, "Me mataría si tuviera la oportunidad de hacerlo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        printf("\n10) Llanto");
+                        strcpy(beck.pregunta[9].pregunta, "10) Lanto");
+                        printf("\n1) No lloro más de lo que solía hacerlo");
+                        printf("\n2) Lloro más de lo que solía hacerlo");
+                        printf("\n3) Lloro por cualquier pequeñez");
+                        printf("\n4) Siento ganas de llorar pero no puedo\n");
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(beck.respuesta[9].respuesta, "No lloro más de lo que solía hacerlo");
+                                    break;
+                                case 2:
+                                    strcpy(beck.respuesta[9].respuesta, "Lloro más de lo que solía hacerlo");
+                                    break;
+                                case 3:
+                                    strcpy(beck.respuesta[9].respuesta, "Lloro por cualquier pequeñez");
+                                    break;
+                                case 4:
+                                    strcpy(beck.respuesta[9].respuesta, "Siento ganas de llorar pero no puedo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        printf("\n11) Agitacion");
+                        strcpy(beck.pregunta[10].pregunta, "11) Agitacion");
+                        printf("\n1) No estoy más inquieto o tenso que lo habitual");
+                        printf("\n2) Me siento más inquieto o tenso que lo habitual");
+                        printf("\n3) Estoy tan inquieto o agitado que me es difícil quedarme quieto");
+                        printf("\n4) Estoy tan inquieto o agitado que tengo que estar siempre en movimiento o haciendo algo\n");
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(beck.respuesta[10].respuesta, "No estoy más inquieto o tenso que lo habitual");
+                                    break;
+                                case 2:
+                                    strcpy(beck.respuesta[10].respuesta, "Me siento más inquieto o tenso que lo habitual");
+                                    break;
+                                case 3:
+                                    strcpy(beck.respuesta[10].respuesta, "Estoy tan inquieto o agitado que me es difícil quedarme quieto");
+                                    break;
+                                case 4:
+                                    strcpy(beck.respuesta[10].respuesta, "Estoy tan inquieto o agitado que tengo que estar siempre en movimiento o haciendo algo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        printf("\n12) Perdida de interes");
+                        strcpy(beck.pregunta[11].pregunta, "12) Perdida de interes");
+                        printf("\n1) No he perdido el interés en otras actividades o personas");
+                        printf("\n2) Estoy menos interesado que antes en otras personas o cosas");
+                        printf("\n3) He perdido casi todo el interés en otras personas o cosas");
+                        printf("\n4) Me es difícil interesarme por algo\n");
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(beck.respuesta[11].respuesta, "No he perdido el interés en otras actividades o personas");
+                                    break;
+                                case 2:
+                                    strcpy(beck.respuesta[11].respuesta, "Estoy menos interesado que antes en otras personas o cosas");
+                                    break;
+                                case 3:
+                                    strcpy(beck.respuesta[11].respuesta, "He perdido casi todo el interés en otras personas o cosas");
+                                    break;
+                                case 4:
+                                    strcpy(beck.respuesta[11].respuesta, "Me es difícil interesarme por algo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        printf("\n13) Indecision");
+                        strcpy(beck.pregunta[12].pregunta, "13) Indecision");
+                        printf("\n1) Tomo mis propias decisiones tan bien como siempre");
+                        printf("\n2) Me resulta más difícil que de costumbre tomar decisiones");
+                        printf("\n3) Encuentro mucha más dificultad que antes para tomar decisiones");
+                        printf("\n4) Tengo problemas para tomar cualquier decisión\n");
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(beck.respuesta[12].respuesta, "Tomo mis propias decisiones tan bien como siempre");
+                                    break;
+                                case 2:
+                                    strcpy(beck.respuesta[12].respuesta, "Me resulta más difícil que de costumbre tomar decisiones");
+                                    break;
+                                case 3:
+                                    strcpy(beck.respuesta[12].respuesta, "Encuentro mucha más dificultad que antes para tomar decisiones");
+                                    break;
+                                case 4:
+                                    strcpy(beck.respuesta[12].respuesta, "Tengo problemas para tomar cualquier decisión");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        printf("\n14) Desvalorizacion");
+                        strcpy(beck.pregunta[13].pregunta, "14) Desvalorizacion");
+                        printf("\n1) No siento que yo no sea valioso");
+                        printf("\n2) No me considero a mi mismo tan valioso y útil como solía considerarme");
+                        printf("\n3) Me siento menos valioso cuando me comparo con otros");
+                        printf("\n4) Siento que no valgo nada\n");
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(beck.respuesta[13].respuesta, "No siento que yo no sea valioso");
+                                    break;
+                                case 2:
+                                    strcpy(beck.respuesta[13].respuesta, "No me considero a mi mismo tan valioso y útil como solía considerarme");
+                                    break;
+                                case 3:
+                                    strcpy(beck.respuesta[13].respuesta, "Me siento menos valioso cuando me comparo con otros");
+                                    break;
+                                case 4:
+                                    strcpy(beck.respuesta[13].respuesta, "Siento que no valgo nada");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        printf("\n15) Perdida de energia");
+                        strcpy(beck.pregunta[14].pregunta, "15) Perdida de energia");
+                        printf("\n1) Tengo tanta energía como siempre");
+                        printf("\n2) Tengo menos energía que la que solía tener");
+                        printf("\n3) No tengo suficiente energía para hacer demasiado");
+                        printf("\n4) No tengo energía suficiente para hacer nada\n");
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(beck.respuesta[14].respuesta, "Tengo tanta energía como siempre");
+                                    break;
+                                case 2:
+                                    strcpy(beck.respuesta[14].respuesta, "Tengo menos energía que la que solía tener");
+                                    break;
+                                case 3:
+                                    strcpy(beck.respuesta[14].respuesta, "No tengo suficiente energía para hacer demasiado");
+                                    break;
+                                case 4:
+                                    strcpy(beck.respuesta[14].respuesta, "No tengo energía suficiente para hacer nada");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        printf("\n16) Cambios en los habitos de sueño");
+                        strcpy(beck.pregunta[15].pregunta, "16) Cambios en los habitos de sueño");
+                        printf("\n1) No he experimentado ningún cambio en mis hábitos de sueño");
+                        printf("\n2) Duermo un poco menos que lo habitual");
+                        printf("\n3) Duermo mucho menos que lo habitual");
+                        printf("\n4) Me despierto 1-2 horas más temprano y no puedo volver a dormirme\n");
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(beck.respuesta[15].respuesta, "No he experimentado ningún cambio en mis hábitos de sueño");
+                                    break;
+                                case 2:
+                                    strcpy(beck.respuesta[15].respuesta, "Duermo un poco menos que lo habitual");
+                                    break;
+                                case 3:
+                                    strcpy(beck.respuesta[15].respuesta, "Duermo mucho menos que lo habitual");
+                                    break;
+                                case 4:
+                                    strcpy(beck.respuesta[15].respuesta, "Me despierto 1-2 horas más temprano y no puedo volver a dormirme");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        printf("\n17) Irritabilidad");
+                        strcpy(beck.pregunta[16].pregunta, "17) Irritabilidad");
+                        printf("\n1) No estoy tan irritable que lo habitual");
+                        printf("\n2) Estoy más irritable que lo habitual");
+                        printf("\n3) Estoy mucho más irritable que lo habitual");
+                        printf("\n4) Estoy irritable todo el tiempo\n");
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(beck.respuesta[16].respuesta, "No estoy tan irritable que lo habitual");
+                                    break;
+                                case 2:
+                                    strcpy(beck.respuesta[16].respuesta, "Estoy más irritable que lo habitual");
+                                    break;
+                                case 3:
+                                    strcpy(beck.respuesta[16].respuesta, "Estoy mucho más irritable que lo habitual");
+                                    break;
+                                case 4:
+                                    strcpy(beck.respuesta[16].respuesta, "Estoy irritable todo el tiempo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        printf("\n18) Cambios en el apetito");
+                        strcpy(beck.pregunta[17].pregunta, "18) Cambios en el apetito");
+                        printf("\n1) No he experimentado ningún cambio en mi apetito");
+                        printf("\n2) Mi apetito es un poco menor que lo habitual");
+                        printf("\n3) Mi apetito es mucho menor que antes");
+                        printf("\n4) No tengo apetito en absoluto\n");
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(beck.respuesta[17].respuesta, "No he experimentado ningún cambio en mi apetito");
+                                    break;
+                                case 2:
+                                    strcpy(beck.respuesta[17].respuesta, "Mi apetito es un poco menor que lo habitual");
+                                    break;
+                                case 3:
+                                    strcpy(beck.respuesta[17].respuesta, "Mi apetito es mucho menor que antes");
+                                    break;
+                                case 4:
+                                    strcpy(beck.respuesta[17].respuesta, "No tengo apetito en absoluto");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        printf("\n19) Dificultad de concentracion");
+                        strcpy(beck.pregunta[18].pregunta, "19) Dificultad de concentracion");
+                        printf("\n1) Puedo concentrarme tan bien como siempre");
+                        printf("\n2) No puedo concentrarme tan bien como habitualmente");
+                        printf("\n3) Me es difícil mantener la mente en algo por mucho tiempo");
+                        printf("\n4) Encuentro que no puedo concentrarme en nada\n");
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(beck.respuesta[18].respuesta, "Puedo concentrarme tan bien como siempre");
+                                    break;
+                                case 2:
+                                    strcpy(beck.respuesta[18].respuesta, "No puedo concentrarme tan bien como habitualmente");
+                                    break;
+                                case 3:
+                                    strcpy(beck.respuesta[18].respuesta, "Me es difícil mantener la mente en algo por mucho tiempo");
+                                    break;
+                                case 4:
+                                    strcpy(beck.respuesta[18].respuesta, "Encuentro que no puedo concentrarme en nada");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        printf("\n20) Cansancio o fatiga");
+                        strcpy(beck.pregunta[19].pregunta, "20) Cansancio o fatiga");
+                        printf("\n1) No estoy más cansado o fatigado que lo habitual");
+                        printf("\n2) Me fatigo o me canso más fácilmente que lo habitual");
+                        printf("\n3) Estoy demasiado fatigado o cansado para hacer muchas de las cosas que solía hacer");
+                        printf("\n4) Estoy demasiado fatigado o cansado para hacer la mayoría de las cosas que solía hacer\n");
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(beck.respuesta[19].respuesta, "No estoy más cansado o fatigado que lo habitual");
+                                    break;
+                                case 2:
+                                    strcpy(beck.respuesta[19].respuesta, "Me fatigo o me canso más fácilmente que lo habitual");
+                                    break;
+                                case 3:
+                                    strcpy(beck.respuesta[19].respuesta, "Estoy demasiado fatigado o cansado para hacer muchas de las cosas que solía hacer");
+                                    break;
+                                case 4:
+                                    strcpy(beck.respuesta[19].respuesta, "Estoy demasiado fatigado o cansado para hacer la mayoría de las cosas que solía hacer");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        printf("\n21) Perdida de interes en el sexo");
+                        strcpy(beck.pregunta[20].pregunta, "21) Perdida de interes en el sexo");
+                        printf("\n1) No he notado ningún cambio reciente en mi interés por el sexo");
+                        printf("\n2) Estoy menos interesado en el sexo de lo que solía estarlo");
+                        printf("\n3) Estoy mucho menos interesado en el sexo");
+                        printf("\n4) He perdido completamente el interés en el sexo\n");
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(beck.respuesta[20].respuesta, "No he notado ningún cambio reciente en mi interés por el sexo");
+                                    break;
+                                case 2:
+                                    strcpy(beck.respuesta[20].respuesta, "Estoy menos interesado en el sexo de lo que solía estarlo");
+                                    break;
+                                case 3:
+                                    strcpy(beck.respuesta[20].respuesta, "Estoy mucho menos interesado en el sexo");
+                                    break;
+                                case 4:
+                                    strcpy(beck.respuesta[20].respuesta, "He perdido completamente el interés en el sexo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    rewind(cuestionario);
+                    for ( i = 0; i < repeticiones[opcion-1]; i++){
+                        fread(&cues, sizeof(Cuestionarios), 1, cuestionario);
+                    }
+                    fseek(cuestionario, -(long)sizeof(Cuestionarios), SEEK_CUR);
+                    cues.estado = 1;
+                    cues.puntuacion = puntuacion;
+                    strcpy(beck.fecha, cues.fecha);
+                    strcpy(beck.paciete, ptrpac->nombre);
+                    fwrite(&cues, sizeof(Cuestionarios), 1, cuestionario);
+                    fclose(cuestionario);
+                    BECK = fopen("registroBeck.bin", "ab");
+                    fwrite(&beck, sizeof(Beck), 1, BECK);
+                    fclose(BECK);
+                    break;
+                case 2:
+                    printf("MDI");
+                    break;
+                case 3:
+                    printf("Zung");
+                    break;
+                case 4:
+                    printf("PHQ-9");
+                    break;
+            }
+        }else{
+            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+            fflush(stdin);
+            opcion = 0;
+        }
+        fclose(cuestionario);
+    } while (opcion == 0);
 }
 
 //Eder
