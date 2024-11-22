@@ -3,7 +3,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <time.h>
-//Hola
+#include <locale.h> 
+
 typedef struct Admin{
     int estado;
     char nombre[50];
@@ -39,7 +40,7 @@ typedef struct Cues{
     int puntuacion;
     int cuestionario;
     char paciente[50];
-    char observaciones[1000];
+    char observaciones[1000]; 
     char fecha[40];
 }Cuestionarios;
 
@@ -57,6 +58,21 @@ typedef struct Bec{
     struct preguntasBeck pregunta[21];    
     struct respuestasBeck respuesta[21];
 }Beck;
+
+struct preguntasMDI{
+    char pregunta[100];
+};
+
+struct respuestasMDI{
+    char respuesta[150];
+};
+
+typedef struct Md{
+    char paciete[50];
+    char fecha[40];
+    struct preguntasMDI pregunta[13];    
+    struct respuestasMDI respuesta[13];
+}MDI;
 
 struct preguntasZung{
     char pregunta[100];
@@ -83,6 +99,7 @@ void registrarMedico();
 void actualizarInformacionMedico();
 void cambiarEstatusMedico();
 void eliminarMedico();
+void transferirPacientes();
 void generarInformesAdministrador();
 void loginMedico();
 Medico validarloginmed(char[], char[]);
@@ -104,9 +121,10 @@ void loginPaciente();
 Paciente validarloginpaci(char[], char[]);
 void menuPaciente(Paciente *);
 void responderCuestionarios(Paciente *);
-void generarInformesPaciente();
+void generarInformesPaciente(Paciente *);
 
 int main(){
+    setlocale(LC_ALL, "");
     Administrador admin;
     FILE *registroAdmin;
     int opcion, i, ciclo;
@@ -446,11 +464,12 @@ void gestionarMedico(){
         printf("\n2) Actualizar informacion de un medico");
         printf("\n3) Habilitar o deshabilitar a un medico");
         printf("\n4) Elminar a un medico");
-        printf("\n5) Salir\n");
+        printf("\n5) Tranferir pacientes");
+        printf("\n6) Salir\n");
         fflush(stdin);
         scanf("%[^\n]%*c", opc);
         opcion = atoi(opc);
-        if(opcion > 0 && opcion < 6){
+        if(opcion > 0 && opcion < 7){
             for (i = 0; i < (int)strlen(opc); i++){
                 if(!isdigit(opc[i])){
                     printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
@@ -471,13 +490,16 @@ void gestionarMedico(){
                 case 4:
                     eliminarMedico();
                     break;
+                case 5:
+                    transferirPacientes();
+                    break;
             }
         }else{
             printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
             fflush(stdin);
             opcion = 0;
         }
-    }while (opcion != 5 || opcion == 0);
+    }while (opcion != 6 || opcion == 0);
 }
 
 void registrarMedico(){
@@ -935,7 +957,7 @@ void eliminarMedico(){
                                 }
                             } while (opcion != 1 && opcion != 2);
                             if (opcion == 1){
-                                FILE *copiaptrMedicos = fopen("registroMedicoCopia.bin", "wb");;
+                                FILE *copiaptrMedicos = fopen("registroMedicoCopia.bin", "wb");
                                 fseek(ptrmedicos, contador * -(long)sizeof(Medico), SEEK_CUR);
                                 fread(&medicos, sizeof(Medico), 1, ptrmedicos);
                                 do{
@@ -967,6 +989,136 @@ void eliminarMedico(){
             }
             fclose(ptrmedicos);
         } while (opcion == 0 || opcion == 2);
+        printf("Saliendo al menu Gestionar medicos\n");
+    }
+}
+
+void transferirPacientes() {
+    Paciente pac, pacienteBuscado;
+    FILE *ptrpacientes = fopen("registroPaciente.bin", "rb");
+    Medico medicos;
+    FILE *ptrmedicos = fopen("registroMedico.bin", "rb");
+    int opcion, i, check, contador;
+    char respuesta[100];
+    char opc[100];
+    char negativo[] = ("Salir");
+    char nombreAux[50];
+
+    if (ptrmedicos == NULL) {
+        printf("\nNo hay medicos registrados por el momento, regrese cuando alla registrado a algun medico\n");
+        fclose(ptrmedicos);
+    } else {
+        fclose(ptrmedicos);
+        printf("\n                     Transferir los pacientes de un medico a otro\n");
+        printf("\n¿A que medico desea realizar esta accion?");
+        printf("\n(Escriba el nombre del medico)");
+
+        do {
+            opc[0] = '0';
+            ptrmedicos = fopen("registroMedico.bin", "rb");
+            fread(&medicos, sizeof(Medico), 1, ptrmedicos);
+            printf("Lista de medicos\n");
+
+            do {
+                printf("\n%s ", medicos.nombre);
+                fread(&medicos, sizeof(Medico), 1, ptrmedicos);
+            } while (feof(ptrmedicos) == 0);
+
+            fclose(ptrmedicos);
+            printf("\n(Si desea detener esta accion escriba 'Salir')\n");
+            fflush(stdin);
+            scanf("%[^\n]%*c", opc);
+
+            if (strcmp(opc, negativo) != 0) {
+                ptrmedicos = fopen("registroMedico.bin", "r+b");
+                fread(&medicos, sizeof(Medico), 1, ptrmedicos);
+                contador = 1;
+
+                do {
+                    if ((strcmp(opc, medicos.nombre) == 0)) {
+                        check = 1;
+                        if (check == 1) {
+                            do {
+                                respuesta[0] = '0';
+                                printf("¿Estas seguro de transferir los pacientes de este medico?");
+                                ptrpacientes = fopen("registroPaciente.bin", "rb");
+                                printf("\nLista de pacientes:");
+                                fread(&pac, sizeof(Paciente), 1, ptrpacientes);
+
+                                do {
+                                    if (strcmp(medicos.nombre, pac.medico) == 0) {
+                                        printf("\n%s ", pac.nombre);
+                                    }
+                                    fread(&pac, sizeof(Paciente), 1, ptrpacientes);
+                                } while (feof(ptrpacientes) == 0);
+
+                                fclose(ptrpacientes);
+                                printf("\n[%s]     1)Si    2)No     ", medicos.nombre);
+                                fflush(stdin);
+                                scanf("%[^\n]%*c", respuesta);
+                                opcion = atoi(respuesta);
+                                fflush(stdin);
+
+                                if (opcion != 1 && opcion != 2) {
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    fflush(stdin);
+                                } else {
+                                    for (i = 0; i < (int)strlen(respuesta); i++) {
+                                        if (!isdigit(respuesta[i])) {
+                                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                            opcion = 0;
+                                            break;
+                                        }
+                                    }
+                                }
+                            } while (opcion != 1 && opcion != 2);
+
+                            if (opcion == 1) {
+                                printf("¿A que medico quiere pasarle los pacientes?");
+                                rewind(ptrmedicos);
+                                fread(&medicos, sizeof(Medico), 1, ptrmedicos);
+
+                                do {
+                                    printf("\n%s ", medicos.nombre);
+                                    fread(&medicos, sizeof(Medico), 1, ptrmedicos);
+                                } while (feof(ptrmedicos) == 0);
+
+                                printf("\n(Si desea detener esta accion escriba 'Salir')\n");
+                                fflush(stdin);
+                                scanf("%[^\n]%*c", nombreAux);
+                                ptrpacientes = fopen("registroPaciente.bin", "rb");
+                                fread(&pac, sizeof(Paciente), 1, ptrpacientes);
+
+                                do {
+                                    if (strcmp(opc, pac.medico) == 0) {
+                                        strcpy(pac.medico, nombreAux);
+                                        fseek(ptrpacientes,-(long)sizeof(Paciente),SEEK_CUR);
+                                        fwrite(&pac, sizeof(Paciente), 1, ptrpacientes);
+                                    }
+                                    fread(&pac, sizeof(Paciente), 1, ptrpacientes);
+                                } while (feof(ptrpacientes) == 0);
+
+                                fclose(ptrpacientes);
+                            }
+                        } else {
+                            printf("El medico ingresado no tiene pacientes registrados, por lo tanto la accion es imposible de realizar");
+                        }
+                        break;
+                    } else {
+                        fread(&medicos, sizeof(Medico), 1, ptrmedicos);
+                    }
+                } while (feof(ptrmedicos) == 0);
+
+                if (opcion == 0) {
+                    printf("Medico no encontrado, intentelo nuevamente");
+                }
+            } else {
+                opcion = 1;
+            }
+
+            fclose(ptrmedicos);
+        } while (opcion == 0 || opcion == 2);
+
         printf("Saliendo al menu Gestionar medicos\n");
     }
 }
@@ -2177,39 +2329,54 @@ void eliminarPaciente(Medico *medico){
     }
 }
 
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
 void generarInformesMedico(){
     printf("\nSeleccionado Generar Informes\n");
+    FILE *archivo;
+    Paciente unapersona;
+    char estat[40];
+    archivo = fopen("registroPaciente.bin", "rb");
+    if(archivo == NULL){
+        printf("\nNo hay pacientes registrados por el momento, regrese cuando alla registrado a algun medico\n");
+        fclose(archivo);
+        return;
+    }
+    int cont = 0;
+    int habi = 0;
+    int desh = 0;
+    fread(&unapersona, sizeof(Paciente),1,archivo);
+    while(!feof(archivo)){
+        if(unapersona.estado == 1){
+            strcpy(estat, "Aun en consulta");
+            printf("\n Médicos [%d]: %s, Estatus: %s\n",cont + 1, unapersona.nombre, estat);
+            habi++;
+        }else{
+            strcpy(estat, "Alta"); 
+            printf("\n Médicos [%d]: %s, Estatus: %s\n",cont + 1, unapersona.nombre, estat);
+            desh++;
+        }
+        cont++;
+        fread(&unapersona, sizeof(Paciente), 1, archivo);
+    }
+    printf("\n");
+    for (int i = 0; i < 50; i++){
+       printf("-");
+    }
+    printf("\n");
+    printf("La cantidad de Pacientes son: %d\n", cont);
+    for (int i = 0; i < 50; i++){
+       printf("-");
+    }
+    printf("\n");
+    printf("La cantidad de Pacientes dados de alta son: %d\n", desh);
+    for (int i = 0; i < 50; i++){
+       printf("-");
+    }
+    printf("\n");
+    printf("La cantidad de Pacientes aun tomando conulta son: %d\n", habi);
+    fclose(archivo);
+    printf("\n");
+    continuar();
 }
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
 
 void loginPaciente(){
     printf("\nLogin Paciente\n");
@@ -2287,7 +2454,7 @@ void menuPaciente(Paciente *ptrpac){
                     responderCuestionarios(ptrpac);
                     break;
                 case 2:
-                    generarInformesPaciente();
+                    generarInformesPaciente(ptrpac);
                     break;
                 case 3:
                     printf("Cerrando sesion.\n");
@@ -2311,16 +2478,24 @@ void responderCuestionarios(Paciente *ptrpac){
     }
     fclose(BECK);
     FILE *ZUNG = fopen("registroZung.bin", "rb");
-    if (BECK == NULL){
+    if (ZUNG == NULL){
         fclose(ZUNG);
         ZUNG = fopen("registroZung.bin", "wb");
         fclose(ZUNG);
     }
     fclose(ZUNG);
+    FILE *mdi = fopen("registroMDI.bin", "rb");
+    if (mdi == NULL){
+        fclose(mdi);
+        mdi = fopen("registroMDI.bin", "wb");
+        fclose(mdi);
+    }
+    fclose(mdi);
     FILE *cuestionario = fopen("registroCuestionarios.bin", "rb");
     Cuestionarios cues;
     Beck beck;
     Zung zung;
+    MDI Mdi;
     int opcion, i, cont, respuesta, puntuacion, lecturas;
     int repeticiones[100];
     char opc[100];
@@ -2393,6 +2568,8 @@ void responderCuestionarios(Paciente *ptrpac){
                     puntuacion = 0;
                     printf("\nIngrese el numero de la respuesta que mejor describa su situacion");
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n1-. Que tan triste te sintes?");
                         strcpy(beck.pregunta[0].pregunta, "1-. Que tan triste te sintes?");
                         printf("\n1) No me siento triste");
@@ -2401,6 +2578,7 @@ void responderCuestionarios(Paciente *ptrpac){
                         printf("\n4) Me siento tan triste o soy tan infeliz que no puedo soportarlo\n");
                         fflush(stdin);
                         scanf("%[^\n]%*c", resp);
+                        fflush(stdin);
                         respuesta = atoi(resp);
                         if((respuesta > 0 && respuesta < 5)){
                             for (i = 0; i < (int)strlen(resp); i++){
@@ -2432,6 +2610,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n2-. Cual es tu nuvel de pesimismo?");
                         strcpy(beck.pregunta[1].pregunta, "2-. Cual es tu nuvel de pesimismo?");
                         printf("\n1) No estoy desalentado respecto del mi futuro");
@@ -2440,6 +2620,7 @@ void responderCuestionarios(Paciente *ptrpac){
                         printf("\n4) Siento que no hay esperanza para mi futuro y que sólo puede empeorar\n");
                         fflush(stdin);
                         scanf("%[^\n]%*c", resp);
+                        fflush(stdin);
                         respuesta = atoi(resp);
                         if((respuesta > 0 && respuesta < 5)){
                             for (i = 0; i < (int)strlen(resp); i++){
@@ -2471,6 +2652,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n3-. Sientes que has fracasado?");
                         strcpy(beck.pregunta[2].pregunta, "3-. Sientes que has fracasado?");
                         printf("\n1) No me siento como un fracasado");
@@ -2510,6 +2693,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n4-. Has tenido perdida de placer?");
                         strcpy(beck.pregunta[3].pregunta, "4-. Has tenido perdida de placer?");
                         printf("\n1) Obtengo tanto placer como siempre por las cosas de las que disfruto");
@@ -2549,6 +2734,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n5-. Tienes sentimientos de culpa?");
                         strcpy(beck.pregunta[4].pregunta, "5-. Tienes sentimientos de culpa?");
                         printf("\n1) No me siento particularmente culpable");
@@ -2588,6 +2775,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n6-. Has tenido sentimientos de castigo?");
                         strcpy(beck.pregunta[5].pregunta, "6-. Has tenido sentimientos de castigo?");
                         printf("\n1) No siento que este siendo castigado");
@@ -2627,6 +2816,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n7-. Sientes disconformidad de ti mismo?");
                         strcpy(beck.pregunta[6].pregunta, "7-. Sientes disconformidad de ti mismo?");
                         printf("\n1) Siento acerca de mi lo mismo que siempre");
@@ -2666,6 +2857,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n8-. Te autocriticas?");
                         strcpy(beck.pregunta[7].pregunta, "8-. Te autocriticas?");
                         printf("\n1) No me critico ni me culpo más de lo habitual");
@@ -2705,6 +2898,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n9-. Has tenido pensamientos o deseos suicidas?");
                         strcpy(beck.pregunta[8].pregunta, "9-. Has tenido pensamientos o deseos suicidas?");
                         printf("\n1) No tengo ningún pensamiento de matarme");
@@ -2744,6 +2939,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n10-. Que tanto has llorado ultimamente?");
                         strcpy(beck.pregunta[9].pregunta, "10-. Que tanto has llorado ultimamente?");
                         printf("\n1) No lloro más de lo que solía hacerlo");
@@ -2783,6 +2980,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n11-. Te has sentido inquieto o agitado?");
                         strcpy(beck.pregunta[10].pregunta, "11-. Te has sentido inquieto o agitado?");
                         printf("\n1) No estoy más inquieto o tenso que lo habitual");
@@ -2822,6 +3021,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n12-. Has tenido perdida de interes?");
                         strcpy(beck.pregunta[11].pregunta, "12-. Has tenido perdida de interes?");
                         printf("\n1) No he perdido el interés en otras actividades o personas");
@@ -2861,6 +3062,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n13-. Como es tu toma de decisiones?");
                         strcpy(beck.pregunta[12].pregunta, "13-. Como es tu toma de decisiones?");
                         printf("\n1) Tomo mis propias decisiones tan bien como siempre");
@@ -2900,6 +3103,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n14-. Te sientes valioso?");
                         strcpy(beck.pregunta[13].pregunta, "14-. Te sientes valioso?");
                         printf("\n1) No siento que yo no sea valioso");
@@ -2939,6 +3144,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n15-. Tienes perdida de energia?");
                         strcpy(beck.pregunta[14].pregunta, "15-. Tienes perdida de energia?");
                         printf("\n1) Tengo tanta energía como siempre");
@@ -2978,6 +3185,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n16-. Has experimentado cambios en tus habitos de sueño?");
                         strcpy(beck.pregunta[15].pregunta, "16-. Has experimentado cambios en tus habitos de sueño?");
                         printf("\n1) No he experimentado ningún cambio en mis hábitos de sueño");
@@ -3017,6 +3226,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n17-. Que tan irritable te has sentido?");
                         strcpy(beck.pregunta[16].pregunta, "17-. Que tan irritable te has sentido?");
                         printf("\n1) No estoy tan irritable que lo habitual");
@@ -3056,6 +3267,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n18-. Has tenido cambios en el apetito?");
                         strcpy(beck.pregunta[17].pregunta, "18-. Has tenido cambios en el apetito?");
                         printf("\n1) No he experimentado ningún cambio en mi apetito");
@@ -3095,6 +3308,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n19-. Has tenido dificultad de concentracion?");
                         strcpy(beck.pregunta[18].pregunta, "19-. Has tenido dificultad de concentracion?");
                         printf("\n1) Puedo concentrarme tan bien como siempre");
@@ -3134,6 +3349,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n20-. Te sientes cansado o fatigado");
                         strcpy(beck.pregunta[19].pregunta, "20-. Te sientes cqnsado o fatigado");
                         printf("\n1) No estoy más cansado o fatigado que lo habitual");
@@ -3173,6 +3390,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n21-. Has tenido perdida de interes en el sexo");
                         strcpy(beck.pregunta[20].pregunta, "21-. Has tenido perdida de interes en el sexo");
                         printf("\n1) No he notado ningún cambio reciente en mi interés por el sexo");
@@ -3227,12 +3446,65 @@ void responderCuestionarios(Paciente *ptrpac){
                     fclose(BECK);
                     break;
                 case 2:
-                    printf("MDI");
+                    puntuacion = 0;
+                    printf("\nIngrese el numero de la respuesta que mejor describa su situacion");
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n1-. ¿Se ha sentido deprimido o triste?");
+                        strcpy(Mdi.pregunta[0].pregunta, "1-. ¿Se ha sentido deprimido o triste?");
+                        printf("\n1) Nunca");
+                        printf("\n2) Ocasional mente");
+                        printf("\n3) Poco menos de la mitad del tiempo");
+                        printf("\n4) Poco más de la mitad del tiempo");
+                        printf("\n5) La mayor parte del tiempo");
+                        printf("\n6) Todo el tiempo");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        fflush(stdin);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 7)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(Mdi.respuesta[0].respuesta, "Nunca");
+                                    break;
+                                case 2:
+                                    strcpy(Mdi.respuesta[0].respuesta, "Ocasional mente");
+                                    break;
+                                case 3:
+                                    strcpy(Mdi.respuesta[0].respuesta, "Poco menos de la mitad del tiempo");
+                                    break;
+                                case 4:
+                                    strcpy(Mdi.respuesta[0].respuesta, "Poco más de la mitad del tiempo");
+                                    break;
+                                case 5:
+                                    strcpy(Mdi.respuesta[0].respuesta, "La mayor parte del tiempo");
+                                    break;
+                                case 6:
+                                    strcpy(Mdi.respuesta[0].respuesta, "Todo el tiempo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
                     break;
                 case 3:
                     puntuacion = 0;
                     printf("\nIngrese el numero de la respuesta que mejor describa su situacion");
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n1-. Me siento triste y deprimido");
                         strcpy(zung.pregunta[0].pregunta, "1-. Me siento triste y deprimido");
                         printf("\n1) Muy pocas veces");
@@ -3272,6 +3544,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n2-. Por las mañanas me siento mejor que por las tardes");
                         strcpy(zung.pregunta[1].pregunta, "2-. Por las mañanas me siento mejor que por las tardes");
                         printf("\n1) Muy pocas veces");
@@ -3311,6 +3585,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n3-. Frecuentemente tengo ganas de llorar y a veces lloro");
                         strcpy(zung.pregunta[2].pregunta, "3-. Frecuentemente tengo ganas de llorar y a veces lloro");
                         printf("\n1) Muy pocas veces");
@@ -3350,6 +3626,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n4-. Me cuesta mucho dormir o duermo mal por las noches");
                         strcpy(zung.pregunta[3].pregunta, "4-. Me cuesta mucho dormir o duermo mal por las noches");
                         printf("\n1) Muy pocas veces");
@@ -3389,6 +3667,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n5-. Ahora tengo tanto apetito como antes");
                         strcpy(zung.pregunta[4].pregunta, "5-. Ahora tengo tanto apetito como antes");
                         printf("\n1) Muy pocas veces");
@@ -3428,6 +3708,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n6-. Creo que estoy adelgazando");
                         strcpy(zung.pregunta[5].pregunta, "6-. Creo que estoy adelgazando");
                         printf("\n1) Muy pocas veces");
@@ -3467,6 +3749,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n7-. Estoy estreñido");
                         strcpy(zung.pregunta[6].pregunta, "7-. Estoy estreñido");
                         printf("\n1) Muy pocas veces");
@@ -3506,6 +3790,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n8-. Tengo palpitaciones");
                         strcpy(zung.pregunta[7].pregunta, "8-. Tengo palpitaciones");
                         printf("\n1) Muy pocas veces");
@@ -3545,6 +3831,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n9-. Me canso por cualquier cosa");
                         strcpy(zung.pregunta[8].pregunta, "9-. Me canso por cualquier cosa");
                         printf("\n1) Muy pocas veces");
@@ -3584,6 +3872,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n10-. Mi cabeza está tan despejada como antes");
                         strcpy(zung.pregunta[9].pregunta, "10-. Mi cabeza está tan despejada como antes");
                         printf("\n1) Muy pocas veces");
@@ -3623,6 +3913,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n11-. Hago las cosas con la misma facilidad que antes");
                         strcpy(zung.pregunta[10].pregunta, "11-. Hago las cosas con la misma facilidad que antes");
                         printf("\n1) Muy pocas veces");
@@ -3662,6 +3954,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n12-. Me siento agitado e intranquilo y no puedo estar quieto");
                         strcpy(zung.pregunta[11].pregunta, "12-. Me siento agitado e intranquilo y no puedo estar quieto");
                         printf("\n1) Muy pocas veces");
@@ -3701,6 +3995,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n13-. Tengo esperanza y confío en el futuro");
                         strcpy(zung.pregunta[12].pregunta, "13-. Tengo esperanza y confío en el futuro");
                         printf("\n1) Muy pocas veces");
@@ -3740,6 +4036,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n14-. Me siento más irritable que habitualmente");
                         strcpy(zung.pregunta[13].pregunta, "14-. Me siento más irritable que habitualmente");
                         printf("\n1) Muy pocas veces");
@@ -3779,6 +4077,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n15-. Encuentro fácil tomar decisiones");
                         strcpy(zung.pregunta[14].pregunta, "15-. Encuentro fácil tomar decisiones");
                         printf("\n1) Muy pocas veces");
@@ -3818,6 +4118,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n16-. Me creo útil y necesario para la gente");
                         strcpy(zung.pregunta[15].pregunta, "16-. Me creo útil y necesario para la gente");
                         printf("\n1) Muy pocas veces");
@@ -3857,6 +4159,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n17-. Encuentro agradable vivir, mi vida es plena");
                         strcpy(zung.pregunta[16].pregunta, "17-. Encuentro agradable vivir, mi vida es plena");
                         printf("\n1) Muy pocas veces");
@@ -3896,6 +4200,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n18-. Creo que sería mejor para los demás si me muriera");
                         strcpy(zung.pregunta[17].pregunta, "18-. Creo que sería mejor para los demás si me muriera");
                         printf("\n1) Muy pocas veces");
@@ -3935,6 +4241,8 @@ void responderCuestionarios(Paciente *ptrpac){
                         }
                     } while (respuesta == 0);
                     do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
                         printf("\n19-. Me gustan las mismas cosas que solían agradarme");
                         strcpy(zung.pregunta[18].pregunta, "19-. Me gustan las mismas cosas que solían agradarme");
                         printf("\n1) Muy pocas veces");
@@ -4001,36 +4309,34 @@ void responderCuestionarios(Paciente *ptrpac){
     } while (opcion == 0);
 }
 
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-void generarInformesPaciente(){
-    printf("\nSeleccionado Visualizar datos de las consultas\n");
+void generarInformesPaciente(Paciente *ptrpac){
+    printf("\nSeleccionado Visualizar datos de las consultas de %s\n", ptrpac->nombre);
+    FILE *archivo;
+    Cuestionarios unapersona;
+    char estat[20];
+    archivo = fopen("registroCuestionarios.bin", "rb");
+    if(archivo == NULL){
+        printf("\nNo hay pacientes registrados por el momento, regrese cuando alla registrado a algun medico\n");
+        fclose(archivo);
+        return;
+    }
+    int cont = 1;
+    int habi = 0;
+    int desh = 0;
+    printf("Consultas del usuario:");
+    fread(&unapersona, sizeof(Cuestionarios),1,archivo);
+    while(!feof(archivo)){
+        if(strcmp(unapersona.paciente, ptrpac->nombre)){
+            if(unapersona.estado == 0){
+                strcpy(estat, "NO");
+            }else{
+                strcpy(estat, "SI");
+            }
+            printf("Consulta [%d] - Fecha [%s] - Cuestionario respondido: [%d] - Su puntuacion es: %d", cont, unapersona.fecha, unapersona.estado, unapersona.puntuacion);
+            cont++;
+        }
+        fread(&unapersona, sizeof(Cuestionarios), 1, archivo);
+    }
+    printf("\n");
+    continuar();
 }
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
-//Eder
