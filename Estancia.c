@@ -85,9 +85,24 @@ struct respuestasZung{
 typedef struct Zun{
     char paciete[50];
     char fecha[40];
-    struct preguntasZung pregunta[21];    
-    struct respuestasZung respuesta[21];
+    struct preguntasZung pregunta[19];    
+    struct respuestasZung respuesta[19];
 }Zung;
+
+struct preguntasPh{
+    char pregunta[150];
+};
+
+struct respuestasPh{
+    char respuesta[150];
+};
+
+typedef struct Ph{
+    char paciete[50];
+    char fecha[40];
+    struct preguntasPh pregunta[9];    
+    struct respuestasPh respuesta[9];
+}Phq9;
 
 void continuar();
 void registroAdministrador(int, Administrador *);
@@ -124,7 +139,8 @@ void responderCuestionarios(Paciente *);
 void generarInformesPaciente(Paciente *);
 
 int main(){
-    setlocale(LC_ALL, "");
+    setlocale(LC_CTYPE, "es_ES.UTF-8");
+    printf("\nÁ, Ñ ¿");
     Administrador admin;
     FILE *registroAdmin;
     int opcion, i, ciclo;
@@ -2145,9 +2161,13 @@ void verResultados(Paciente *ptrpaciente){
     FILE *ptrCuestionarios = fopen("registroCuestionarios.bin", "rb");
     FILE *ptrBeck;
     FILE *ptrZung;
+    FILE *ptrMDI;
+    FILE *ptrPhq9;
     Cuestionarios cues;
     Beck preg;
+    MDI pregu;
     Zung pregun;
+    Phq9 pregunt;
     int i;
     /*
     int opcion, i, cont;
@@ -2195,10 +2215,38 @@ void verResultados(Paciente *ptrpaciente){
                 fclose(ptrBeck);
             }
         }
-
-
-
-
+        if (cues.cuestionario == 2 && cues.estado == 1 && strcmp(cues.paciente, ptrpaciente->nombre) == 0){
+            ptrMDI = fopen("registroMDI.bin", "rb");
+            if (ptrZung != NULL){
+                fread(&pregu, sizeof(MDI), 1, ptrMDI);
+                do{
+                    if ((strcmp(cues.paciente, pregu.paciete) == 0) && (strcmp(cues.fecha, pregu.fecha) == 0)){
+                        printf("\nFecha de la consulta %s", cues.fecha);
+                        printf("Cuestionario de MDI, puntuacion: %d/65", cues.puntuacion);
+                        if (cues.puntuacion <= 19){
+                            printf("\nSin deprecion");
+                        }
+                        if (cues.puntuacion >= 20 && cues.puntuacion <= 24){
+                            printf("\nDepresion leve");
+                        }
+                        if (cues.puntuacion >= 25 && cues.puntuacion <= 29){
+                            printf("\nDepresion moderada");
+                        }
+                        if (cues.puntuacion >= 30){
+                            printf("\nDepresion severa");
+                        }
+                        printf("\nRespuestas");
+                        for (i = 0; i < 13; i++){
+                            printf("\n%s", pregu.pregunta[i].pregunta);
+                            printf("\n%s", pregu.respuesta[i].respuesta);
+                        }
+                        printf("\n");
+                    }
+                    fread(&pregu, sizeof(MDI), 1, ptrMDI);
+                } while (feof(ptrMDI) == 0);
+                fclose(ptrMDI);
+            }
+        }
         if (cues.cuestionario == 3 && cues.estado == 1 && strcmp(cues.paciente, ptrpaciente->nombre) == 0){
             ptrZung = fopen("registroZung.bin", "rb");
             if (ptrZung != NULL){
@@ -2231,10 +2279,41 @@ void verResultados(Paciente *ptrpaciente){
                 fclose(ptrZung);
             }
         }
-
-
-
-
+        if (cues.cuestionario == 4 && cues.estado == 1 && strcmp(cues.paciente, ptrpaciente->nombre) == 0){
+            ptrPhq9 = fopen("registroPHQ9.bin", "rb");
+            if (ptrPhq9 != NULL){
+                fread(&pregunt, sizeof(Phq9), 1, ptrPhq9);
+                do{
+                    if ((strcmp(cues.paciente, pregunt.paciete) == 0) && (strcmp(cues.fecha, pregunt.fecha) == 0)){
+                        printf("\nFecha de la consulta %s", cues.fecha);
+                        printf("Cuestionario de PHQ9, puntuacion: %d/27", cues.puntuacion);
+                        if (cues.puntuacion <= 4){
+                            printf("\nDepresion minima");
+                        }
+                        if (cues.puntuacion >= 5 && cues.puntuacion <= 9){
+                            printf("\nDepresion leve");
+                        }
+                        if (cues.puntuacion >= 10 && cues.puntuacion <= 14){
+                            printf("\nDepresion moderada");
+                        }
+                        if (cues.puntuacion >= 15 && cues.puntuacion <= 19){
+                            printf("\nDepresion moderada-severa");
+                        }
+                        if (cues.puntuacion >= 20){
+                            printf("\nDepresion severa");
+                        }
+                        printf("\nRespuestas");
+                        for (i = 0; i < 9; i++){
+                            printf("\n%s", pregunt.pregunta[i].pregunta);
+                            printf("\n%s", pregunt.respuesta[i].respuesta);
+                        }
+                        printf("\n");
+                    }
+                    fread(&pregunt, sizeof(Phq9), 1, ptrPhq9);
+                } while (feof(ptrPhq9) == 0);
+                fclose(ptrPhq9);
+            }
+        }
         fread(&cues, sizeof(Cuestionarios), 1, ptrCuestionarios);
     } while (feof(ptrCuestionarios) == 0);
 }
@@ -2491,11 +2570,19 @@ void responderCuestionarios(Paciente *ptrpac){
         fclose(mdi);
     }
     fclose(mdi);
+    FILE *PHQ9 = fopen("registroPHQ9.bin", "rb");
+    if (PHQ9 == NULL){
+        fclose(PHQ9);
+        PHQ9 = fopen("registroPHQ9.bin", "wb");
+        fclose(PHQ9);
+    }
+    fclose(PHQ9);
     FILE *cuestionario = fopen("registroCuestionarios.bin", "rb");
     Cuestionarios cues;
     Beck beck;
     Zung zung;
     MDI Mdi;
+    Phq9 phq9;
     int opcion, i, cont, respuesta, puntuacion, lecturas;
     int repeticiones[100];
     char opc[100];
@@ -3498,6 +3585,620 @@ void responderCuestionarios(Paciente *ptrpac){
                             respuesta = 0;
                         }
                     } while (respuesta == 0);
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n2-. ¿Ha perdido interés en sus actividades diarias?");
+                        strcpy(Mdi.pregunta[1].pregunta, "2-. ¿Ha perdido interés en sus actividades diarias?");
+                        printf("\n1) Nunca");
+                        printf("\n2) Ocasional mente");
+                        printf("\n3) Poco menos de la mitad del tiempo");
+                        printf("\n4) Poco más de la mitad del tiempo");
+                        printf("\n5) La mayor parte del tiempo");
+                        printf("\n6) Todo el tiempo");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        fflush(stdin);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 7)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(Mdi.respuesta[1].respuesta, "Nunca");
+                                    break;
+                                case 2:
+                                    strcpy(Mdi.respuesta[1].respuesta, "Ocasional mente");
+                                    break;
+                                case 3:
+                                    strcpy(Mdi.respuesta[1].respuesta, "Poco menos de la mitad del tiempo");
+                                    break;
+                                case 4:
+                                    strcpy(Mdi.respuesta[1].respuesta, "Poco más de la mitad del tiempo");
+                                    break;
+                                case 5:
+                                    strcpy(Mdi.respuesta[1].respuesta, "La mayor parte del tiempo");
+                                    break;
+                                case 6:
+                                    strcpy(Mdi.respuesta[1].respuesta, "Todo el tiempo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n3-. ¿Ha sentido falta de energía y fuerza?");
+                        strcpy(Mdi.pregunta[2].pregunta, "3-. ¿Ha sentido falta de energía y fuerza?");
+                        printf("\n1) Nunca");
+                        printf("\n2) Ocasional mente");
+                        printf("\n3) Poco menos de la mitad del tiempo");
+                        printf("\n4) Poco más de la mitad del tiempo");
+                        printf("\n5) La mayor parte del tiempo");
+                        printf("\n6) Todo el tiempo");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        fflush(stdin);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 7)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(Mdi.respuesta[2].respuesta, "Nunca");
+                                    break;
+                                case 2:
+                                    strcpy(Mdi.respuesta[2].respuesta, "Ocasional mente");
+                                    break;
+                                case 3:
+                                    strcpy(Mdi.respuesta[2].respuesta, "Poco menos de la mitad del tiempo");
+                                    break;
+                                case 4:
+                                    strcpy(Mdi.respuesta[2].respuesta, "Poco más de la mitad del tiempo");
+                                    break;
+                                case 5:
+                                    strcpy(Mdi.respuesta[2].respuesta, "La mayor parte del tiempo");
+                                    break;
+                                case 6:
+                                    strcpy(Mdi.respuesta[2].respuesta, "Todo el tiempo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n4-. ¿Ha sentido menos confianza en sí mismo?");
+                        strcpy(Mdi.pregunta[3].pregunta, "4-. ¿Ha sentido menos confianza en sí mismo?");
+                        printf("\n1) Nunca");
+                        printf("\n2) Ocasional mente");
+                        printf("\n3) Poco menos de la mitad del tiempo");
+                        printf("\n4) Poco más de la mitad del tiempo");
+                        printf("\n5) La mayor parte del tiempo");
+                        printf("\n6) Todo el tiempo");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        fflush(stdin);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 7)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(Mdi.respuesta[3].respuesta, "Nunca");
+                                    break;
+                                case 2:
+                                    strcpy(Mdi.respuesta[3].respuesta, "Ocasional mente");
+                                    break;
+                                case 3:
+                                    strcpy(Mdi.respuesta[3].respuesta, "Poco menos de la mitad del tiempo");
+                                    break;
+                                case 4:
+                                    strcpy(Mdi.respuesta[3].respuesta, "Poco más de la mitad del tiempo");
+                                    break;
+                                case 5:
+                                    strcpy(Mdi.respuesta[3].respuesta, "La mayor parte del tiempo");
+                                    break;
+                                case 6:
+                                    strcpy(Mdi.respuesta[3].respuesta, "Todo el tiempo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n5-. ¿Ha tenido usted cargos de conciencia o sentimientos de culpa?");
+                        strcpy(Mdi.pregunta[4].pregunta, "5-. ¿Ha tenido usted cargos de conciencia o sentimientos de culpa?");
+                        printf("\n1) Nunca");
+                        printf("\n2) Ocasional mente");
+                        printf("\n3) Poco menos de la mitad del tiempo");
+                        printf("\n4) Poco más de la mitad del tiempo");
+                        printf("\n5) La mayor parte del tiempo");
+                        printf("\n6) Todo el tiempo");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        fflush(stdin);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 7)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(Mdi.respuesta[4].respuesta, "Nunca");
+                                    break;
+                                case 2:
+                                    strcpy(Mdi.respuesta[4].respuesta, "Ocasional mente");
+                                    break;
+                                case 3:
+                                    strcpy(Mdi.respuesta[4].respuesta, "Poco menos de la mitad del tiempo");
+                                    break;
+                                case 4:
+                                    strcpy(Mdi.respuesta[4].respuesta, "Poco más de la mitad del tiempo");
+                                    break;
+                                case 5:
+                                    strcpy(Mdi.respuesta[4].respuesta, "La mayor parte del tiempo");
+                                    break;
+                                case 6:
+                                    strcpy(Mdi.respuesta[4].respuesta, "Todo el tiempo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n6-. ¿Ha sentido que la vida no merece la pena vivirla?");
+                        strcpy(Mdi.pregunta[5].pregunta, "6-. ¿Ha sentido que la vida no merece la pena vivirla?");
+                        printf("\n1) Nunca");
+                        printf("\n2) Ocasional mente");
+                        printf("\n3) Poco menos de la mitad del tiempo");
+                        printf("\n4) Poco más de la mitad del tiempo");
+                        printf("\n5) La mayor parte del tiempo");
+                        printf("\n6) Todo el tiempo");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        fflush(stdin);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 7)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(Mdi.respuesta[5].respuesta, "Nunca");
+                                    break;
+                                case 2:
+                                    strcpy(Mdi.respuesta[5].respuesta, "Ocasional mente");
+                                    break;
+                                case 3:
+                                    strcpy(Mdi.respuesta[5].respuesta, "Poco menos de la mitad del tiempo");
+                                    break;
+                                case 4:
+                                    strcpy(Mdi.respuesta[5].respuesta, "Poco más de la mitad del tiempo");
+                                    break;
+                                case 5:
+                                    strcpy(Mdi.respuesta[5].respuesta, "La mayor parte del tiempo");
+                                    break;
+                                case 6:
+                                    strcpy(Mdi.respuesta[5].respuesta, "Todo el tiempo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n7-. ¿Ha tenido dificultades para concentrarse?");
+                        strcpy(Mdi.pregunta[6].pregunta, "7-. ¿Ha tenido dificultades para concentrarse?");
+                        printf("\n1) Nunca");
+                        printf("\n2) Ocasional mente");
+                        printf("\n3) Poco menos de la mitad del tiempo");
+                        printf("\n4) Poco más de la mitad del tiempo");
+                        printf("\n5) La mayor parte del tiempo");
+                        printf("\n6) Todo el tiempo");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        fflush(stdin);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 7)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(Mdi.respuesta[6].respuesta, "Nunca");
+                                    break;
+                                case 2:
+                                    strcpy(Mdi.respuesta[6].respuesta, "Ocasional mente");
+                                    break;
+                                case 3:
+                                    strcpy(Mdi.respuesta[6].respuesta, "Poco menos de la mitad del tiempo");
+                                    break;
+                                case 4:
+                                    strcpy(Mdi.respuesta[6].respuesta, "Poco más de la mitad del tiempo");
+                                    break;
+                                case 5:
+                                    strcpy(Mdi.respuesta[6].respuesta, "La mayor parte del tiempo");
+                                    break;
+                                case 6:
+                                    strcpy(Mdi.respuesta[6].respuesta, "Todo el tiempo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n8-. ¿Se ha sentido muy inquieto?");
+                        strcpy(Mdi.pregunta[7].pregunta, "8-. ¿Se ha sentido muy inquieto?");
+                        printf("\n1) Nunca");
+                        printf("\n2) Ocasional mente");
+                        printf("\n3) Poco menos de la mitad del tiempo");
+                        printf("\n4) Poco más de la mitad del tiempo");
+                        printf("\n5) La mayor parte del tiempo");
+                        printf("\n6) Todo el tiempo");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        fflush(stdin);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 7)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(Mdi.respuesta[7].respuesta, "Nunca");
+                                    break;
+                                case 2:
+                                    strcpy(Mdi.respuesta[7].respuesta, "Ocasional mente");
+                                    break;
+                                case 3:
+                                    strcpy(Mdi.respuesta[7].respuesta, "Poco menos de la mitad del tiempo");
+                                    break;
+                                case 4:
+                                    strcpy(Mdi.respuesta[7].respuesta, "Poco más de la mitad del tiempo");
+                                    break;
+                                case 5:
+                                    strcpy(Mdi.respuesta[7].respuesta, "La mayor parte del tiempo");
+                                    break;
+                                case 6:
+                                    strcpy(Mdi.respuesta[7].respuesta, "Todo el tiempo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n9-. ¿Se ha sentido apagado o lento?");
+                        strcpy(Mdi.pregunta[8].pregunta, "9-. ¿Se ha sentido apagado o lento?");
+                        printf("\n1) Nunca");
+                        printf("\n2) Ocasional mente");
+                        printf("\n3) Poco menos de la mitad del tiempo");
+                        printf("\n4) Poco más de la mitad del tiempo");
+                        printf("\n5) La mayor parte del tiempo");
+                        printf("\n6) Todo el tiempo");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        fflush(stdin);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 7)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(Mdi.respuesta[8].respuesta, "Nunca");
+                                    break;
+                                case 2:
+                                    strcpy(Mdi.respuesta[8].respuesta, "Ocasional mente");
+                                    break;
+                                case 3:
+                                    strcpy(Mdi.respuesta[8].respuesta, "Poco menos de la mitad del tiempo");
+                                    break;
+                                case 4:
+                                    strcpy(Mdi.respuesta[8].respuesta, "Poco más de la mitad del tiempo");
+                                    break;
+                                case 5:
+                                    strcpy(Mdi.respuesta[8].respuesta, "La mayor parte del tiempo");
+                                    break;
+                                case 6:
+                                    strcpy(Mdi.respuesta[8].respuesta, "Todo el tiempo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n10-. ¿Has estado durmiendo muy poco?");
+                        strcpy(Mdi.pregunta[9].pregunta, "10-. ¿Has estado durmiendo muy poco?");
+                        printf("\n1) Nunca");
+                        printf("\n2) Ocasional mente");
+                        printf("\n3) Poco menos de la mitad del tiempo");
+                        printf("\n4) Poco más de la mitad del tiempo");
+                        printf("\n5) La mayor parte del tiempo");
+                        printf("\n6) Todo el tiempo");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        fflush(stdin);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 7)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(Mdi.respuesta[9].respuesta, "Nunca");
+                                    break;
+                                case 2:
+                                    strcpy(Mdi.respuesta[9].respuesta, "Ocasional mente");
+                                    break;
+                                case 3:
+                                    strcpy(Mdi.respuesta[9].respuesta, "Poco menos de la mitad del tiempo");
+                                    break;
+                                case 4:
+                                    strcpy(Mdi.respuesta[9].respuesta, "Poco más de la mitad del tiempo");
+                                    break;
+                                case 5:
+                                    strcpy(Mdi.respuesta[9].respuesta, "La mayor parte del tiempo");
+                                    break;
+                                case 6:
+                                    strcpy(Mdi.respuesta[9].respuesta, "Todo el tiempo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n11-. ¿Has estado durmiendo demasiado?");
+                        strcpy(Mdi.pregunta[10].pregunta, "11-. ¿Has estado durmiendo demasiado?");
+                        printf("\n1) Nunca");
+                        printf("\n2) Ocasional mente");
+                        printf("\n3) Poco menos de la mitad del tiempo");
+                        printf("\n4) Poco más de la mitad del tiempo");
+                        printf("\n5) La mayor parte del tiempo");
+                        printf("\n6) Todo el tiempo");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        fflush(stdin);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 7)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(Mdi.respuesta[10].respuesta, "Nunca");
+                                    break;
+                                case 2:
+                                    strcpy(Mdi.respuesta[10].respuesta, "Ocasional mente");
+                                    break;
+                                case 3:
+                                    strcpy(Mdi.respuesta[10].respuesta, "Poco menos de la mitad del tiempo");
+                                    break;
+                                case 4:
+                                    strcpy(Mdi.respuesta[10].respuesta, "Poco más de la mitad del tiempo");
+                                    break;
+                                case 5:
+                                    strcpy(Mdi.respuesta[10].respuesta, "La mayor parte del tiempo");
+                                    break;
+                                case 6:
+                                    strcpy(Mdi.respuesta[10].respuesta, "Todo el tiempo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n12-. ¿Ha notado falta de apetito?");
+                        strcpy(Mdi.pregunta[11].pregunta, "12-. ¿Ha notado falta de apetito?");
+                        printf("\n1) Nunca");
+                        printf("\n2) Ocasional mente");
+                        printf("\n3) Poco menos de la mitad del tiempo");
+                        printf("\n4) Poco más de la mitad del tiempo");
+                        printf("\n5) La mayor parte del tiempo");
+                        printf("\n6) Todo el tiempo");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        fflush(stdin);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 7)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(Mdi.respuesta[11].respuesta, "Nunca");
+                                    break;
+                                case 2:
+                                    strcpy(Mdi.respuesta[11].respuesta, "Ocasional mente");
+                                    break;
+                                case 3:
+                                    strcpy(Mdi.respuesta[11].respuesta, "Poco menos de la mitad del tiempo");
+                                    break;
+                                case 4:
+                                    strcpy(Mdi.respuesta[11].respuesta, "Poco más de la mitad del tiempo");
+                                    break;
+                                case 5:
+                                    strcpy(Mdi.respuesta[11].respuesta, "La mayor parte del tiempo");
+                                    break;
+                                case 6:
+                                    strcpy(Mdi.respuesta[11].respuesta, "Todo el tiempo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n13-. ¿Ha notado aumento de apetito?");
+                        strcpy(Mdi.pregunta[12].pregunta, "13-. ¿Ha notado aumento de apetito?");
+                        printf("\n1) Nunca");
+                        printf("\n2) Ocasional mente");
+                        printf("\n3) Poco menos de la mitad del tiempo");
+                        printf("\n4) Poco más de la mitad del tiempo");
+                        printf("\n5) La mayor parte del tiempo");
+                        printf("\n6) Todo el tiempo");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        fflush(stdin);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 7)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(Mdi.respuesta[12].respuesta, "Nunca");
+                                    break;
+                                case 2:
+                                    strcpy(Mdi.respuesta[12].respuesta, "Ocasional mente");
+                                    break;
+                                case 3:
+                                    strcpy(Mdi.respuesta[12].respuesta, "Poco menos de la mitad del tiempo");
+                                    break;
+                                case 4:
+                                    strcpy(Mdi.respuesta[12].respuesta, "Poco más de la mitad del tiempo");
+                                    break;
+                                case 5:
+                                    strcpy(Mdi.respuesta[12].respuesta, "La mayor parte del tiempo");
+                                    break;
+                                case 6:
+                                    strcpy(Mdi.respuesta[12].respuesta, "Todo el tiempo");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    rewind(cuestionario);
+                    for ( i = 0; i < repeticiones[opcion-1]; i++){
+                        fread(&cues, sizeof(Cuestionarios), 1, cuestionario);
+                    }
+                    fseek(cuestionario, -(long)sizeof(Cuestionarios), SEEK_CUR);
+                    cues.estado = 1;
+                    cues.puntuacion = puntuacion;
+                    strcpy(Mdi.fecha, cues.fecha);
+                    strcpy(Mdi.paciete, ptrpac->nombre);
+                    fwrite(&cues, sizeof(Cuestionarios), 1, cuestionario);
+                    fclose(cuestionario);
+                    mdi = fopen("registroMDI.bin", "ab");
+                    fwrite(&Mdi, sizeof(MDI), 1, mdi);
+                    fclose(mdi);
                     break;
                 case 3:
                     puntuacion = 0;
@@ -4297,7 +4998,391 @@ void responderCuestionarios(Paciente *ptrpac){
                     fclose(ZUNG);
                     break;
                 case 4:
-                    printf("PHQ-9");
+                    puntuacion = 0;
+                    printf("\nIngrese el numero de la respuesta que mejor describa su situacion");
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n1-. Poco interés o placer en hacer las cosas");
+                        strcpy(phq9.pregunta[0].pregunta, "1-. Poco interés o placer en hacer las cosas");
+                        printf("\n1) Para nada");
+                        printf("\n2) Varios días");
+                        printf("\n3) Más de la mitad de los días");
+                        printf("\n4) Casi todos los días\n");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(phq9.respuesta[0].respuesta, "Para nada");
+                                    break;
+                                case 2:
+                                    strcpy(phq9.respuesta[0].respuesta, "Varios días");
+                                    break;
+                                case 3:
+                                    strcpy(phq9.respuesta[0].respuesta, "Más de la mitad de los días");
+                                    break;
+                                case 4:
+                                    strcpy(phq9.respuesta[0].respuesta, "Casi todos los días");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n2-. Se ha sentido decaído(a), deprimido(a), o sin esperanzas");
+                        strcpy(phq9.pregunta[1].pregunta, "2-. Se ha sentido decaído(a), deprimido(a), o sin esperanzas");
+                        printf("\n1) Para nada");
+                        printf("\n2) Varios días");
+                        printf("\n3) Más de la mitad de los días");
+                        printf("\n4) Casi todos los días\n");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(phq9.respuesta[1].respuesta, "Para nada");
+                                    break;
+                                case 2:
+                                    strcpy(phq9.respuesta[1].respuesta, "Varios días");
+                                    break;
+                                case 3:
+                                    strcpy(phq9.respuesta[1].respuesta, "Más de la mitad de los días");
+                                    break;
+                                case 4:
+                                    strcpy(phq9.respuesta[1].respuesta, "Casi todos los días");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n3-. Se ha sentido cansado(a) o con poca energía");
+                        strcpy(phq9.pregunta[2].pregunta, "3-. Se ha sentido cansado(a) o con poca energía");
+                        printf("\n1) Para nada");
+                        printf("\n2) Varios días");
+                        printf("\n3) Más de la mitad de los días");
+                        printf("\n4) Casi todos los días\n");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(phq9.respuesta[2].respuesta, "Para nada");
+                                    break;
+                                case 2:
+                                    strcpy(phq9.respuesta[2].respuesta, "Varios días");
+                                    break;
+                                case 3:
+                                    strcpy(phq9.respuesta[2].respuesta, "Más de la mitad de los días");
+                                    break;
+                                case 4:
+                                    strcpy(phq9.respuesta[2].respuesta, "Casi todos los días");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n4-. Se ha sentido cansado(a) o con poca energía");
+                        strcpy(phq9.pregunta[3].pregunta, "4-. Se ha sentido cansado(a) o con poca energía");
+                        printf("\n1) Para nada");
+                        printf("\n2) Varios días");
+                        printf("\n3) Más de la mitad de los días");
+                        printf("\n4) Casi todos los días\n");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(phq9.respuesta[3].respuesta, "Para nada");
+                                    break;
+                                case 2:
+                                    strcpy(phq9.respuesta[3].respuesta, "Varios días");
+                                    break;
+                                case 3:
+                                    strcpy(phq9.respuesta[3].respuesta, "Más de la mitad de los días");
+                                    break;
+                                case 4:
+                                    strcpy(phq9.respuesta[3].respuesta, "Casi todos los días");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n5-. Con poco apetito o ha comido en exceso");
+                        strcpy(phq9.pregunta[4].pregunta, "5-. Con poco apetito o ha comido en exceso");
+                        printf("\n1) Para nada");
+                        printf("\n2) Varios días");
+                        printf("\n3) Más de la mitad de los días");
+                        printf("\n4) Casi todos los días\n");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(phq9.respuesta[4].respuesta, "Para nada");
+                                    break;
+                                case 2:
+                                    strcpy(phq9.respuesta[4].respuesta, "Varios días");
+                                    break;
+                                case 3:
+                                    strcpy(phq9.respuesta[4].respuesta, "Más de la mitad de los días");
+                                    break;
+                                case 4:
+                                    strcpy(phq9.respuesta[4].respuesta, "Casi todos los días");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n6-. Se ha sentido mal con usted mismo(a) o que es un fracaso o que ha quedado mal con usted mismo(a) o con su familia");
+                        strcpy(phq9.pregunta[5].pregunta, "6-. Se ha sentido mal con usted mismo(a) o que es un fracaso o que ha quedado mal con usted mismo(a) o con su familia");
+                        printf("\n1) Para nada");
+                        printf("\n2) Varios días");
+                        printf("\n3) Más de la mitad de los días");
+                        printf("\n4) Casi todos los días\n");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(phq9.respuesta[5].respuesta, "Para nada");
+                                    break;
+                                case 2:
+                                    strcpy(phq9.respuesta[5].respuesta, "Varios días");
+                                    break;
+                                case 3:
+                                    strcpy(phq9.respuesta[5].respuesta, "Más de la mitad de los días");
+                                    break;
+                                case 4:
+                                    strcpy(phq9.respuesta[5].respuesta, "Casi todos los días");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n7-. Ha tenido dificultad para concentrarse en cosas tales como leer el periódico o ver televisión");
+                        strcpy(phq9.pregunta[6].pregunta, "7-. Ha tenido dificultad para concentrarse en cosas tales como leer el periódico o ver televisión");
+                        printf("\n1) Para nada");
+                        printf("\n2) Varios días");
+                        printf("\n3) Más de la mitad de los días");
+                        printf("\n4) Casi todos los días\n");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(phq9.respuesta[6].respuesta, "Para nada");
+                                    break;
+                                case 2:
+                                    strcpy(phq9.respuesta[6].respuesta, "Varios días");
+                                    break;
+                                case 3:
+                                    strcpy(phq9.respuesta[6].respuesta, "Más de la mitad de los días");
+                                    break;
+                                case 4:
+                                    strcpy(phq9.respuesta[6].respuesta, "Casi todos los días");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n8-. ¿Se ha estado moviendo o hablando tan lento que otras personas podrían notarlo?");
+                        strcpy(phq9.pregunta[7].pregunta, "8-. ¿Se ha estado moviendo o hablando tan lento que otras personas podrían notarlo?");
+                        printf("\n1) Para nada");
+                        printf("\n2) Varios días");
+                        printf("\n3) Más de la mitad de los días");
+                        printf("\n4) Casi todos los días\n");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(phq9.respuesta[7].respuesta, "Para nada");
+                                    break;
+                                case 2:
+                                    strcpy(phq9.respuesta[7].respuesta, "Varios días");
+                                    break;
+                                case 3:
+                                    strcpy(phq9.respuesta[7].respuesta, "Más de la mitad de los días");
+                                    break;
+                                case 4:
+                                    strcpy(phq9.respuesta[7].respuesta, "Casi todos los días");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    do{
+                        strcpy(resp, "NO");
+                        respuesta = 0;
+                        printf("\n9-. Ha pensado que estaría mejor muerto(a) o se le ha ocurrido lastimarse de alguna manera");
+                        strcpy(phq9.pregunta[8].pregunta, "9-. Ha pensado que estaría mejor muerto(a) o se le ha ocurrido lastimarse de alguna manera");
+                        printf("\n1) Para nada");
+                        printf("\n2) Varios días");
+                        printf("\n3) Más de la mitad de los días");
+                        printf("\n4) Casi todos los días\n");
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", resp);
+                        respuesta = atoi(resp);
+                        if((respuesta > 0 && respuesta < 5)){
+                            for (i = 0; i < (int)strlen(resp); i++){
+                                if(!isdigit(opc[i])){
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    respuesta = 0;
+                                    break;
+                                }
+                            }
+                            puntuacion += (respuesta-1);
+                            switch (respuesta){
+                                case 1:
+                                    strcpy(phq9.respuesta[8].respuesta, "Para nada");
+                                    break;
+                                case 2:
+                                    strcpy(phq9.respuesta[8].respuesta, "Varios días");
+                                    break;
+                                case 3:
+                                    strcpy(phq9.respuesta[8].respuesta, "Más de la mitad de los días");
+                                    break;
+                                case 4:
+                                    strcpy(phq9.respuesta[8].respuesta, "Casi todos los días");
+                                    break;
+                            }
+                        }else{
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                            respuesta = 0;
+                        }
+                    } while (respuesta == 0);
+                    rewind(cuestionario);
+                    for ( i = 0; i < repeticiones[opcion-1]; i++){
+                        fread(&cues, sizeof(Cuestionarios), 1, cuestionario);
+                    }
+                    fseek(cuestionario, -(long)sizeof(Cuestionarios), SEEK_CUR);
+                    cues.estado = 1;
+                    cues.puntuacion = puntuacion;
+                    strcpy(phq9.fecha, cues.fecha);
+                    strcpy(phq9.paciete, ptrpac->nombre);
+                    fwrite(&cues, sizeof(Cuestionarios), 1, cuestionario);
+                    fclose(cuestionario);
+                    PHQ9 = fopen("registroPHQ9.bin", "ab");
+                    fwrite(&phq9, sizeof(Phq9), 1, PHQ9);
+                    fclose(PHQ9);
                     break;
             }
         }else{
