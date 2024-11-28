@@ -104,6 +104,11 @@ typedef struct Ph{
     struct respuestasPh respuesta[9];
 }Phq9;
 
+typedef struct Fech{
+    char fecha[40];
+}Fecha;
+
+
 void continuar();
 void registroAdministrador(int, Administrador *);
 void loginAdministrador();
@@ -131,7 +136,7 @@ void observaciones(Paciente *);
 void asignarCuestionarios(Paciente *);
 void verResultados(Paciente *);
 void eliminarPaciente(Medico *);
-void generarInformesMedico();
+void generarInformesMedico(Medico *);
 void loginPaciente();
 Paciente validarloginpaci(char[], char[]);
 void menuPaciente(Paciente *);
@@ -1283,7 +1288,7 @@ void menuMedico(Medico *ptrmedico){
                     gestionarPaciente(ptrmedico);
                     break;
                 case 3:
-                    generarInformesMedico();
+                    generarInformesMedico(ptrmedico);
                     break;
                 case 4:
                     printf("Cerrando sesión...\n");
@@ -2268,154 +2273,186 @@ void verResultados(Paciente *ptrpaciente){
     MDI pregu;
     Zung pregun;
     Phq9 pregunt;
-    int i;
-    /*
+    Fecha fechas[1000];
     int opcion, i, cont;
     char respuesta[100];
     char negativo[] = ("Salir");
-    */
-    if (ptrCuestionarios == NULL){
-        printf("\nNo hay consulta registrada, vuelva cuando haya registrado alguna.\n");
+    printf("\n¿De qué fecha desea ver los resultados del cuestionario?\n");
+    do{
+        cont = 1;
+        printf("\nEscriba el número de la fecha de la consulta\n");
+        ptrCuestionarios = fopen("registroCuestionarios.bin", "rb");
+        fread(&cues, sizeof(Cuestionarios), 1, ptrCuestionarios);
+        do{
+            if ((strcmp(ptrpaciente->nombre, cues.paciente) == 0) && (cues.estado == 1) ){
+                printf("%d) %s", cont, cues.fecha);
+                strcpy(fechas[cont-1].fecha, cues.fecha);
+                cont++;
+            }
+            fread(&cues, sizeof(Cuestionarios), 1, ptrCuestionarios);
+        } while (feof(ptrCuestionarios) == 0);
         fclose(ptrCuestionarios);
-        return;
-    }
-    fclose(ptrCuestionarios);
+        printf("(Si desea detener esta acción escriba 'Salir')\n");
+        fflush(stdin);
+        scanf("%[^\n]%*c", respuesta);
+        opcion = atoi(respuesta);
+        fflush(stdin);   
+        if (strcmp(respuesta, negativo) == 0){
+            return;
+        }
+        if (opcion < 1 || opcion > (cont - 1)){
+            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+            opcion = 0;
+            fflush(stdin);
+        }else{
+            for (i = 0; i < (int)strlen(respuesta); i++){
+                if (!isdigit(respuesta[i])){
+                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                    opcion = 0;
+                    break;
+                }
+            }
+        }
+    } while (opcion == 0);
     ptrCuestionarios = fopen("registroCuestionarios.bin", "rb");
     fread(&cues, sizeof(Cuestionarios), 1, ptrCuestionarios);
     do{
-        if (cues.cuestionario == 1 && cues.estado == 1 && strcmp(cues.paciente, ptrpaciente->nombre) == 0){
-            ptrBeck = fopen("registroBeck.bin", "rb");
-            if (ptrBeck != NULL){
-                fread(&preg, sizeof(Beck), 1, ptrBeck);
-                do{
-                    if ((strcmp(cues.paciente, preg.paciete) == 0) && (strcmp(cues.fecha, preg.fecha) == 0)){
-                        printf("\nFecha de la consulta %s", cues.fecha);
-                        printf("Cuestionario de beck, puntuación: %d/63", cues.puntuacion);
-                        if (cues.puntuacion <= 13){
-                            printf("\nDepresión leve");
-                        }
-                        if (cues.puntuacion >= 14 && cues.puntuacion <= 19){
-                            printf("\nDepresión moderada");
-                        }
-                        if (cues.puntuacion >= 20 && cues.puntuacion <= 28){
-                            printf("\nDepresión moderada-severa");
-                        }
-                        if (cues.puntuacion >= 29){
-                            printf("\nDepresión severa");
-                        }
-                        printf("\nRespuestas");
-                        for (i = 0; i < 21; i++){
-                            printf("\n%s", preg.pregunta[i].pregunta);
-                            printf("\n%s", preg.respuesta[i].respuesta);
-                        }
-                        printf("\n");
-                    }
+        if (strcmp(cues.fecha, fechas[opcion-1].fecha) == 0){
+            if (cues.cuestionario == 1 && cues.estado == 1 && strcmp(cues.paciente, ptrpaciente->nombre) == 0){
+                ptrBeck = fopen("registroBeck.bin", "rb");
+                if (ptrBeck != NULL){
                     fread(&preg, sizeof(Beck), 1, ptrBeck);
-                } while (feof(ptrBeck) == 0);
-                fclose(ptrBeck);
+                    do{
+                        if ((strcmp(cues.paciente, preg.paciete) == 0) && (strcmp(cues.fecha, preg.fecha) == 0)){
+                            printf("\nFecha de la consulta %s", cues.fecha);
+                            printf("Cuestionario de beck, puntuación: %d/63", cues.puntuacion);
+                            if (cues.puntuacion <= 13){
+                                printf("\nDepresión leve");
+                            }
+                            if (cues.puntuacion >= 14 && cues.puntuacion <= 19){
+                                printf("\nDepresión moderada");
+                            }
+                            if (cues.puntuacion >= 20 && cues.puntuacion <= 28){
+                                printf("\nDepresión moderada-severa");
+                            }
+                            if (cues.puntuacion >= 29){
+                                printf("\nDepresión severa");
+                            }
+                            printf("\nRespuestas");
+                            for (i = 0; i < 21; i++){
+                                printf("\n%s", preg.pregunta[i].pregunta);
+                                printf("\n%s", preg.respuesta[i].respuesta);
+                            }
+                            printf("\n");
+                        }
+                        fread(&preg, sizeof(Beck), 1, ptrBeck);
+                    } while (feof(ptrBeck) == 0);
+                    fclose(ptrBeck);
+                }
             }
-        }
-        if (cues.cuestionario == 2 && cues.estado == 1 && strcmp(cues.paciente, ptrpaciente->nombre) == 0){
-            ptrMDI = fopen("registroMDI.bin", "rb");
-            if (ptrZung != NULL){
-                fread(&pregu, sizeof(MDI), 1, ptrMDI);
-                do{
-                    if ((strcmp(cues.paciente, pregu.paciete) == 0) && (strcmp(cues.fecha, pregu.fecha) == 0)){
-                        printf("\nFecha de la consulta %s", cues.fecha);
-                        printf("Cuestionario de MDI, puntuación: %d/65", cues.puntuacion);
-                        if (cues.puntuacion <= 19){
-                            printf("\nSin depresión");
-                        }
-                        if (cues.puntuacion >= 20 && cues.puntuacion <= 24){
-                            printf("\nDepresión leve");
-                        }
-                        if (cues.puntuacion >= 25 && cues.puntuacion <= 29){
-                            printf("\nDepresión moderada");
-                        }
-                        if (cues.puntuacion >= 30){
-                            printf("\nDepresión severa");
-                        }
-                        printf("\nRespuestas");
-                        for (i = 0; i < 13; i++){
-                            printf("\n%s", pregu.pregunta[i].pregunta);
-                            printf("\n%s", pregu.respuesta[i].respuesta);
-                        }
-                        printf("\n");
-                    }
+            if (cues.cuestionario == 2 && cues.estado == 1 && strcmp(cues.paciente, ptrpaciente->nombre) == 0){
+                ptrMDI = fopen("registroMDI.bin", "rb");
+                if (ptrZung != NULL){
                     fread(&pregu, sizeof(MDI), 1, ptrMDI);
-                } while (feof(ptrMDI) == 0);
-                fclose(ptrMDI);
+                    do{
+                        if ((strcmp(cues.paciente, pregu.paciete) == 0) && (strcmp(cues.fecha, pregu.fecha) == 0)){
+                            printf("\nFecha de la consulta %s", cues.fecha);
+                            printf("Cuestionario de MDI, puntuación: %d/65", cues.puntuacion);
+                            if (cues.puntuacion <= 19){
+                                printf("\nSin depresión");
+                            }
+                            if (cues.puntuacion >= 20 && cues.puntuacion <= 24){
+                                printf("\nDepresión leve");
+                            }
+                            if (cues.puntuacion >= 25 && cues.puntuacion <= 29){
+                                printf("\nDepresión moderada");
+                            }
+                            if (cues.puntuacion >= 30){
+                                printf("\nDepresión severa");
+                            }
+                            printf("\nRespuestas");
+                            for (i = 0; i < 13; i++){
+                                printf("\n%s", pregu.pregunta[i].pregunta);
+                                printf("\n%s", pregu.respuesta[i].respuesta);
+                            }
+                            printf("\n");
+                        }
+                        fread(&pregu, sizeof(MDI), 1, ptrMDI);
+                    } while (feof(ptrMDI) == 0);
+                    fclose(ptrMDI);
+                }
             }
-        }
-        if (cues.cuestionario == 3 && cues.estado == 1 && strcmp(cues.paciente, ptrpaciente->nombre) == 0){
-            ptrZung = fopen("registroZung.bin", "rb");
-            if (ptrZung != NULL){
-                fread(&pregun, sizeof(Zung), 1, ptrZung);
-                do{
-                    if ((strcmp(cues.paciente, pregun.paciete) == 0) && (strcmp(cues.fecha, pregun.fecha) == 0)){
-                        printf("\nFecha de la consulta %s", cues.fecha);
-                        printf("Cuestionario de Zung, puntuación: %d/57", cues.puntuacion);
-                        if (cues.puntuacion <= 28){
-                            printf("\nAusencia de depresión");
-                        }
-                        if (cues.puntuacion >= 29 && cues.puntuacion <= 41){
-                            printf("\nDepresión leve");
-                        }
-                        if (cues.puntuacion >= 42 && cues.puntuacion <= 53){
-                            printf("\nDepresión moderada");
-                        }
-                        if (cues.puntuacion >= 54){
-                            printf("\nDepresión grave");
-                        }
-                        printf("\nRespuestas");
-                        for (i = 0; i < 19; i++){
-                            printf("\n%s", pregun.pregunta[i].pregunta);
-                            printf("\n%s", pregun.respuesta[i].respuesta);
-                        }
-                        printf("\n");
-                    }
+            if (cues.cuestionario == 3 && cues.estado == 1 && strcmp(cues.paciente, ptrpaciente->nombre) == 0){
+                ptrZung = fopen("registroZung.bin", "rb");
+                if (ptrZung != NULL){
                     fread(&pregun, sizeof(Zung), 1, ptrZung);
-                } while (feof(ptrZung) == 0);
-                fclose(ptrZung);
+                    do{
+                        if ((strcmp(cues.paciente, pregun.paciete) == 0) && (strcmp(cues.fecha, pregun.fecha) == 0)){
+                            printf("\nFecha de la consulta %s", cues.fecha);
+                            printf("Cuestionario de Zung, puntuación: %d/57", cues.puntuacion);
+                            if (cues.puntuacion <= 28){
+                                printf("\nAusencia de depresión");
+                            }
+                            if (cues.puntuacion >= 29 && cues.puntuacion <= 41){
+                                printf("\nDepresión leve");
+                            }
+                            if (cues.puntuacion >= 42 && cues.puntuacion <= 53){
+                                printf("\nDepresión moderada");
+                            }
+                            if (cues.puntuacion >= 54){
+                                printf("\nDepresión grave");
+                            }
+                            printf("\nRespuestas");
+                            for (i = 0; i < 19; i++){
+                                printf("\n%s", pregun.pregunta[i].pregunta);
+                                printf("\n%s", pregun.respuesta[i].respuesta);
+                            }
+                            printf("\n");
+                        }
+                        fread(&pregun, sizeof(Zung), 1, ptrZung);
+                    } while (feof(ptrZung) == 0);
+                    fclose(ptrZung);
+                }
             }
-        }
-        if (cues.cuestionario == 4 && cues.estado == 1 && strcmp(cues.paciente, ptrpaciente->nombre) == 0){
-            ptrPhq9 = fopen("registroPHQ9.bin", "rb");
-            if (ptrPhq9 != NULL){
-                fread(&pregunt, sizeof(Phq9), 1, ptrPhq9);
-                do{
-                    if ((strcmp(cues.paciente, pregunt.paciete) == 0) && (strcmp(cues.fecha, pregunt.fecha) == 0)){
-                        printf("\nFecha de la consulta %s", cues.fecha);
-                        printf("Cuestionario de PHQ9, puntuación: %d/27", cues.puntuacion);
-                        if (cues.puntuacion <= 4){
-                            printf("\nDepresión mínima");
-                        }
-                        if (cues.puntuacion >= 5 && cues.puntuacion <= 9){
-                            printf("\nDepresión leve");
-                        }
-                        if (cues.puntuacion >= 10 && cues.puntuacion <= 14){
-                            printf("\nDepresión moderada");
-                        }
-                        if (cues.puntuacion >= 15 && cues.puntuacion <= 19){
-                            printf("\nDepresión moderada-severa");
-                        }
-                        if (cues.puntuacion >= 20){
-                            printf("\nDepresión severa");
-                        }
-                        printf("\nRespuestas");
-                        for (i = 0; i < 9; i++){
-                            printf("\n%s", pregunt.pregunta[i].pregunta);
-                            printf("\n%s", pregunt.respuesta[i].respuesta);
-                        }
-                        printf("\n");
-                    }
+            if (cues.cuestionario == 4 && cues.estado == 1 && strcmp(cues.paciente, ptrpaciente->nombre) == 0){
+                ptrPhq9 = fopen("registroPHQ9.bin", "rb");
+                if (ptrPhq9 != NULL){
                     fread(&pregunt, sizeof(Phq9), 1, ptrPhq9);
-                } while (feof(ptrPhq9) == 0);
-                fclose(ptrPhq9);
+                    do{
+                        if ((strcmp(cues.paciente, pregunt.paciete) == 0) && (strcmp(cues.fecha, pregunt.fecha) == 0)){
+                            printf("\nFecha de la consulta %s", cues.fecha);
+                            printf("Cuestionario de PHQ9, puntuación: %d/27", cues.puntuacion);
+                            if (cues.puntuacion <= 4){
+                                printf("\nDepresión mínima");
+                            }
+                            if (cues.puntuacion >= 5 && cues.puntuacion <= 9){
+                                printf("\nDepresión leve");
+                            }
+                            if (cues.puntuacion >= 10 && cues.puntuacion <= 14){
+                                printf("\nDepresión moderada");
+                            }
+                            if (cues.puntuacion >= 15 && cues.puntuacion <= 19){
+                                printf("\nDepresión moderada-severa");
+                            }
+                            if (cues.puntuacion >= 20){
+                                printf("\nDepresión severa");
+                            }
+                            printf("\nRespuestas");
+                            for (i = 0; i < 9; i++){
+                                printf("\n%s", pregunt.pregunta[i].pregunta);
+                                printf("\n%s", pregunt.respuesta[i].respuesta);
+                            }
+                            printf("\n");
+                        }
+                        fread(&pregunt, sizeof(Phq9), 1, ptrPhq9);
+                    } while (feof(ptrPhq9) == 0);
+                    fclose(ptrPhq9);
+                }
             }
         }
         fread(&cues, sizeof(Cuestionarios), 1, ptrCuestionarios);
     } while (feof(ptrCuestionarios) == 0);
+    fclose(ptrCuestionarios);
 }
 
 void eliminarPaciente(Medico *medico){
@@ -2508,17 +2545,60 @@ void eliminarPaciente(Medico *medico){
     }
 }
 
-//corregir
-//corregir
-//corregir
-//corregir
-//corregir
-//corregir
-//corregir
-//corregir
-//corregir
-//corregir
+void generarInformesMedico(Medico *medico){
+    printf("\nSeleccionado Generar Informes\n");
+    FILE *archivo;
+    Paciente unapersona;
+    char estat[40];
+    archivo = fopen("registroPaciente.bin", "rb");
+    if(archivo == NULL){
+        printf("\nNo hay pacientes registrados por el momento, regrese cuando haya registrado algún medico\n");
+        fclose(archivo);
+        return;
+    }
+    int cont = 0;
+    int habi = 0;
+    int desh = 0;
+    fread(&unapersona, sizeof(Paciente),1,archivo);
+   
+    while(!feof(archivo)){
+        if((strcmp(medico->nombre, unapersona.medico) == 0)){
+            if(unapersona.estado == 1){
+                habi++;
+            }else{
+                desh++;
+            }
+            cont++;
+            fread(&unapersona, sizeof(Paciente), 1, archivo);
+        }
+    }
+    printf("\n");
+    for (int i = 0; i < 50; i++){
+       printf("-");
+    }
+    printf("\n");
+    printf("La cantidad de pacientes son: %d\n", cont);
+    for (int i = 0; i < 50; i++){
+       printf("-");
+    }
+    int contador=1;
+    while(!feof(archivo)){
+        if((strcmp(medico->nombre, unapersona.medico) == 0)){
+            
+            printf("%d) %s\n",contador);
+            fread(&unapersona, sizeof(Paciente), 1, archivo);
+        }
+    }
+    printf("\n");
+    printf("\n");
+    printf("La cantidad de Pacientes habilitados son: %d\n\n", habi);
+    printf("La cantidad de Pacientes inabilitados son: %d\n", desh);
+    fclose(archivo);
+    printf("\n");
+    continuar();
+}
 
+/*
 void generarInformesMedico(){
     printf("\nSeleccionado Generar Informes\n");
     FILE *archivo;
@@ -2567,6 +2647,7 @@ void generarInformesMedico(){
     printf("\n");
     continuar();
 }
+*/
 
 void loginPaciente(){
     printf("\nLogin Paciente\n");
@@ -2577,7 +2658,7 @@ void loginPaciente(){
     do{
         printf("Ingrese su nombre:");
         scanf("%[^\n]%*c", nombreA);
-        printf("Ingrese su cedula:");
+        printf("Ingrese su NSS:");
         scanf("%[^\n]%*c", nombreL);
         Pac = validarloginpaci(nombreA,nombreL);
         if (Pac.estado == -100){
@@ -5516,6 +5597,40 @@ void generarInformesPaciente(Paciente *ptrpac){
         fclose(archivo);
         return;
     }
+    int cont = 1;   
+    int contadoraux=0;
+    printf("Consultas del usuario:");
+    fread(&unapersona, sizeof(Cuestionarios),1,archivo);
+    while(!feof(archivo)){
+        if(strcmp(unapersona.paciente, ptrpac->nombre)==0){
+            if(unapersona.estado == 0){
+                strcpy(estat, "NO");
+            }else{
+                strcpy(estat, "SI");
+                contadoraux++;
+            }
+            printf("Consulta [%d] - Fecha [%s] - Cuestionario respondido: [%s] - Su puntuacion es: %d", cont, unapersona.fecha, estat, unapersona.puntuacion);
+            cont++;
+        }
+        fread(&unapersona, sizeof(Cuestionarios), 1, archivo);
+    }
+    printf("\nNo. de cuestionarios respondidos: %d\n",contadoraux);
+    printf("\n");
+    continuar();
+}
+
+/*
+void generarInformesPaciente(Paciente *ptrpac){
+    printf("\nSeleccionado Visualizar datos de las consultas de %s\n", ptrpac->nombre);
+    FILE *archivo;
+    Cuestionarios unapersona;
+    char estat[20];
+    archivo = fopen("registroCuestionarios.bin", "rb");
+    if(archivo == NULL){
+        printf("\nNo hay pacientes registrados por el momento, regrese cuando haya registrado a algun medico\n");
+        fclose(archivo);
+        return;
+    }
     int cont = 1;
     int habi = 0;
     int desh = 0;
@@ -5536,3 +5651,4 @@ void generarInformesPaciente(Paciente *ptrpac){
     printf("\n");
     continuar();
 }
+*/
