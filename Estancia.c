@@ -77,7 +77,7 @@ typedef struct Md{
 struct preguntasZung{
     char pregunta[100];
 };
-
+ 
 struct respuestasZung{
     char respuesta[150];
 };
@@ -937,17 +937,18 @@ void eliminarMedico(){
                 contador = 1;
                 do{
                     if ((strcmp(opc, copiaMedicos.nombre) == 0) && copiaMedicos.estado == 0){
-                        //Verificar que el medico no tenga pacientes registrados
-                        //Verificar que el medico no tenga pacientes registrados
-                        //Verificar que el medico no tenga pacientes registrados
-                        //Verificar que el medico no tenga pacientes registrados
-                        //Verificar que el medico no tenga pacientes registrados
-                        check = 1;
-                        //Verificar que el medico no tenga pacientes registrados
-                        //Verificar que el medico no tenga pacientes registrados
-                        //Verificar que el medico no tenga pacientes registrados
-                        //Verificar que el medico no tenga pacientes registrados
-                        //Verificar que el medico no tenga pacientes registrados
+                        FILE *ptrPaciente = fopen("registroPaciente.bin", "rb");
+                        Paciente pac;
+                        fread(&pac, sizeof(Paciente), 1, ptrPaciente);
+                        do{
+                            if (strcmp(pac.medico, copiaMedicos.nombre) == 0){
+                                check = 0;
+                            }else{
+                                check = 1;
+                            }
+                            fread(&pac, sizeof(Paciente), 1, ptrPaciente);
+                        } while (feof(ptrPaciente) == 0);
+                        fclose(ptrPaciente);
                         if (check == 1){
                             do{
                                 respuesta[0] = '0';
@@ -1007,28 +1008,16 @@ void eliminarMedico(){
     }
 }
 
-//Coregir
-//Coregir
-//Coregir
-//Coregir
-//Coregir
-//Coregir
-//Coregir
-//Coregir
-//Coregir
-//Coregir
-
 void transferirPacientes() {
-    Paciente pac, pacienteBuscado;
+    Paciente pac;
     FILE *ptrpacientes = fopen("registroPaciente.bin", "rb");
     Medico medicos;
     FILE *ptrmedicos = fopen("registroMedico.bin", "rb");
-    int opcion, i, check, contador;
+    int opcion, i;
     char respuesta[100];
     char opc[100];
     char negativo[] = ("Salir");
     char nombreAux[50];
-
     if (ptrmedicos == NULL) {
         printf("\nNo hay medicos registrados por el momento, regrese cuando alla registrado a algun medico\n");
         fclose(ptrmedicos);
@@ -1037,113 +1026,124 @@ void transferirPacientes() {
         printf("\n                     Transferir los pacientes de un medico a otro\n");
         printf("\n¿A que medico desea realizar esta accion?");
         printf("\n(Escriba el nombre del medico)");
-
         do {
             opc[0] = '0';
             ptrmedicos = fopen("registroMedico.bin", "rb");
             fread(&medicos, sizeof(Medico), 1, ptrmedicos);
             printf("Lista de medicos\n");
-
             do {
                 printf("\n%s ", medicos.nombre);
                 fread(&medicos, sizeof(Medico), 1, ptrmedicos);
             } while (feof(ptrmedicos) == 0);
-
             fclose(ptrmedicos);
             printf("\n(Si desea detener esta accion escriba 'Salir')\n");
             fflush(stdin);
             scanf("%[^\n]%*c", opc);
-
-            if (strcmp(opc, negativo) != 0) {
-                ptrmedicos = fopen("registroMedico.bin", "r+b");
-                fread(&medicos, sizeof(Medico), 1, ptrmedicos);
-                contador = 1;
-
-                do {
-                    if ((strcmp(opc, medicos.nombre) == 0)) {
-                        check = 1;
-                        if (check == 1) {
-                            do {
-                                respuesta[0] = '0';
-                                printf("¿Estas seguro de transferir los pacientes de este medico?");
-                                ptrpacientes = fopen("registroPaciente.bin", "rb");
-                                printf("\nLista de pacientes:");
-                                fread(&pac, sizeof(Paciente), 1, ptrpacientes);
-
-                                do {
-                                    if (strcmp(medicos.nombre, pac.medico) == 0) {
-                                        printf("\n%s ", pac.nombre);
-                                    }
-                                    fread(&pac, sizeof(Paciente), 1, ptrpacientes);
-                                } while (feof(ptrpacientes) == 0);
-
-                                fclose(ptrpacientes);
-                                printf("\n[%s]     1)Si    2)No     ", medicos.nombre);
-                                fflush(stdin);
-                                scanf("%[^\n]%*c", respuesta);
-                                opcion = atoi(respuesta);
-                                fflush(stdin);
-
-                                if (opcion != 1 && opcion != 2) {
-                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
-                                    fflush(stdin);
-                                } else {
-                                    for (i = 0; i < (int)strlen(respuesta); i++) {
-                                        if (!isdigit(respuesta[i])) {
-                                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
-                                            opcion = 0;
-                                            break;
-                                        }
-                                    }
-                                }
-                            } while (opcion != 1 && opcion != 2);
-
-                            if (opcion == 1) {
-                                printf("¿A que medico quiere pasarle los pacientes?");
-                                rewind(ptrmedicos);
-                                fread(&medicos, sizeof(Medico), 1, ptrmedicos);
-
-                                do {
-                                    printf("\n%s ", medicos.nombre);
-                                    fread(&medicos, sizeof(Medico), 1, ptrmedicos);
-                                } while (feof(ptrmedicos) == 0);
-
-                                printf("\n(Si desea detener esta accion escriba 'Salir')\n");
-                                fflush(stdin);
-                                scanf("%[^\n]%*c", nombreAux);
-                                ptrpacientes = fopen("registroPaciente.bin", "rb");
-                                fread(&pac, sizeof(Paciente), 1, ptrpacientes);
-
-                                do {
-                                    if (strcmp(opc, pac.medico) == 0) {
-                                        strcpy(pac.medico, nombreAux);
-                                        fseek(ptrpacientes,-(long)sizeof(Paciente),SEEK_CUR);
-                                        fwrite(&pac, sizeof(Paciente), 1, ptrpacientes);
-                                    }
-                                    fread(&pac, sizeof(Paciente), 1, ptrpacientes);
-                                } while (feof(ptrpacientes) == 0);
-
-                                fclose(ptrpacientes);
-                            }
-                        } else {
-                            printf("El medico ingresado no tiene pacientes registrados, por lo tanto la accion es imposible de realizar");
-                        }
-                        break;
-                    } else {
-                        fread(&medicos, sizeof(Medico), 1, ptrmedicos);
-                    }
-                } while (feof(ptrmedicos) == 0);
-
-                if (opcion == 0) {
-                    printf("Medico no encontrado, intentelo nuevamente");
-                }
-            } else {
-                opcion = 1;
+            if (strcmp(opc, negativo) == 0) {
+                printf("Saliendo al menu Gestionar medicos\n");
+                return;
             }
-
+            ptrmedicos = fopen("registroMedico.bin", "rb");
+            fread(&medicos, sizeof(Medico), 1, ptrmedicos);
+            opcion = 0;
+            do {
+                if ((strcmp(opc, medicos.nombre) == 0)) {
+                    opcion = 10;
+                    do {
+                        respuesta[0] = '0';
+                        printf("¿Estas seguro de transferir los pacientes de este medico?");
+                        ptrpacientes = fopen("registroPaciente.bin", "rb");
+                        printf("\nLista de pacientes:");
+                        fread(&pac, sizeof(Paciente), 1, ptrpacientes);
+                        do {
+                            if (strcmp(medicos.nombre, pac.medico) == 0) {
+                                printf("\n%s ", pac.nombre);
+                            }
+                            fread(&pac, sizeof(Paciente), 1, ptrpacientes);
+                        } while (feof(ptrpacientes) == 0);
+                        fclose(ptrpacientes);
+                        printf("\n[%s]     1)Si    2)No     ", medicos.nombre);
+                        fflush(stdin);
+                        scanf("%[^\n]%*c", respuesta);
+                        opcion = atoi(respuesta);
+                        fflush(stdin);
+                        if (opcion != 1 && opcion != 2) {
+                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                            fflush(stdin);
+                        } else {
+                            for (i = 0; i < (int)strlen(respuesta); i++) {
+                                if (!isdigit(respuesta[i])) {
+                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    opcion = 0;
+                                    break;
+                                }
+                            }
+                        }
+                    } while (opcion != 1 && opcion != 2);
+                    if (opcion == 1) {
+                        fclose(ptrmedicos);
+                        do{
+                            printf("¿A que medico quiere pasarle los pacientes?");
+                            ptrmedicos = fopen("registroMedico.bin", "rb");
+                            fread(&medicos, sizeof(Medico), 1, ptrmedicos);
+                            do {
+                                if (strcmp(medicos.nombre, opc) != 0){
+                                    printf("\n%s ", medicos.nombre);
+                                }
+                                fread(&medicos, sizeof(Medico), 1, ptrmedicos);
+                            } while (feof(ptrmedicos) == 0);
+                            fclose(ptrmedicos);
+                            printf("\n");
+                            fflush(stdin);
+                            scanf("%[^\n]%*c", nombreAux);
+                            fflush(stdin);
+                            ptrmedicos = fopen("registroMedico.bin", "rb");
+                            fread(&medicos, sizeof(Medico), 1, ptrmedicos);
+                            do {
+                                if (strcmp(medicos.nombre, nombreAux) == 0){
+                                    opcion = 2;
+                                }
+                                fread(&medicos, sizeof(Medico), 1, ptrmedicos);
+                            } while (feof(ptrmedicos) == 0);
+                            fclose(ptrmedicos);
+                            if (opcion == 2){
+                                ptrpacientes = fopen("registroPaciente.bin", "r+b");
+                                fread(&pac, sizeof(Paciente), 1, ptrpacientes);
+                                do{
+                                    if (strcmp(opc, pac.medico) == 0) {
+                                        FILE *lectura = fopen("registroPaciente.bin", "r+b");
+                                        Paciente auxiliar2;
+                                        fread(&auxiliar2, sizeof(Paciente), 1, lectura);
+                                        do{
+                                            if(strcmp(auxiliar2.medico, opc) == 0){
+                                                fseek(lectura,-(long)sizeof(Paciente),SEEK_CUR);
+                                                strcpy(auxiliar2.medico, nombreAux);
+                                                fwrite(&auxiliar2, sizeof(Paciente), 1, lectura);
+                                                break;
+                                            }
+                                            fread(&auxiliar2, sizeof(Paciente), 1, lectura);
+                                        } while (feof(lectura) == 0);
+                                        fclose(lectura);
+                                    }
+                                    fread(&pac, sizeof(Paciente), 1, ptrpacientes);    
+                                } while (feof(ptrpacientes) == 0);
+                                fclose(ptrpacientes);
+                            }else{
+                                printf("Medico no encontrado, intentelo nuevamente\n");
+                            }
+                        } while (opcion != 2);
+                        printf("Pacientes transferidos\n");
+                    }
+                    break;
+                } else {
+                    fread(&medicos, sizeof(Medico), 1, ptrmedicos);
+                }
+            } while (feof(ptrmedicos) == 0);
+            if (opcion == 0) {
+                printf("Medico no encontrado, intentelo nuevamente");
+            }
             fclose(ptrmedicos);
         } while (opcion == 0 || opcion == 2);
-
         printf("Saliendo al menu Gestionar medicos\n");
     }
 }
@@ -1641,57 +1641,57 @@ void actualizarInformacionPaciente(Medico *medico){
                                 printf("\nIngrese el nuevo nombre completo: ");
                                 scanf("%[^\n]%*c", pac.nombre);
                                 fflush(stdin);
+                                do{
                                     do{
-                                        do{
-                                            printf("Ingrese la nueva contraseña (Ingrese mínimo 5 caracteres): ");
-                                            scanf("%[^\n]%*c", pac.login);
-                                            fflush(stdin);
-                                            longitud = strlen(pac.login);
-                                            if (longitud < 5){
-                                                printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
-                                            }
-                                        } while (longitud < 5);
+                                        printf("Ingrese la nueva contraseña (Ingrese mínimo 5 caracteres): ");
+                                        scanf("%[^\n]%*c", pac.login);
+                                        fflush(stdin);
+                                        longitud = strlen(pac.login);
+                                        if (longitud < 5){
+                                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                        }
+                                    } while (longitud < 5);
                                     printf("Vuelva a ingresar la nueva contraseña: ");
                                     scanf("%[^\n]%*c", contra);
                                     fflush(stdin);
                                     if (strcmp(pac.login, contra) != 0){
                                         printf("Las contraseñas no coinciden, intentalo nuevamente\n");
                                     }
-                                    } while (strcmp(pac.login, contra) != 0);
-                                    do{
-                                        printf("Número de seguridad social NSS (11 caracteres): ");
-                                        scanf("%[^\n]%*c", pac.nss);
-                                        fflush(stdin);
-                                        longitud = strlen(pac.nss);
-                                        if (longitud != 11){
-                                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
-                                        }
-                                    } while (longitud != 11);
+                                } while (strcmp(pac.login, contra) != 0);
+                                do{
+                                    printf("Número de seguridad social NSS (11 caracteres): ");
+                                    scanf("%[^\n]%*c", pac.nss);
                                     fflush(stdin);
-                                    do{
-                                        printf("Teléfono(10 dígitos): ");
-                                        scanf("%[^\n]%*c", pac.telefono);
-                                        fflush(stdin);
-                                        if(strlen(pac.telefono) == 10){
-                                            for (i = 0; i < (int)strlen(pac.telefono); i++){
-                                                if(!isdigit(pac.telefono[i])){
-                                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
-                                                    opcion = 0;
-                                                    break;
-                                                }
-                                                opcion = 1;
+                                    longitud = strlen(pac.nss);
+                                    if (longitud != 11){
+                                        printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    }
+                                } while (longitud != 11);
+                                fflush(stdin);
+                                do{
+                                    printf("Teléfono(10 dígitos): ");
+                                    scanf("%[^\n]%*c", pac.telefono);
+                                    fflush(stdin);
+                                    if(strlen(pac.telefono) == 10){
+                                        for (i = 0; i < (int)strlen(pac.telefono); i++){
+                                            if(!isdigit(pac.telefono[i])){
+                                                printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                                opcion = 0;
+                                                break;
                                             }
-                                        }else{
-                                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
-                                            opcion = 0;
+                                            opcion = 1;
                                         }
-                                    }while(opcion != 1);
-                                    printf("Correo electrónico: ");
-                                    scanf("%[^\n]%*c", pac.correo);
-                                    fflush(stdin);
-                                    printf("Información actualizada con éxito\n");
-                                    fseek(ptrpacientes,-(long)sizeof(Paciente),SEEK_CUR);
-                                    fwrite(&pac, sizeof(Paciente), 1, ptrpacientes);
+                                    }else{
+                                        printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                        opcion = 0;
+                                    }
+                                }while(opcion != 1);
+                                printf("Correo electrónico: ");
+                                scanf("%[^\n]%*c", pac.correo);
+                                fflush(stdin);
+                                printf("Información actualizada con éxito\n");
+                                fseek(ptrpacientes,-(long)sizeof(Paciente),SEEK_CUR);
+                                fwrite(&pac, sizeof(Paciente), 1, ptrpacientes);
 
                                 FILE *modName = fopen("registroCuestionarios.bin", "r+b");
                                 Cuestionarios auxiliar;
@@ -1715,6 +1715,98 @@ void actualizarInformacionPaciente(Medico *medico){
                                     fread(&auxiliar, sizeof(Cuestionarios), 1, modName);
                                 } while (feof(modName) == 0);
                                 fclose(modName);
+
+                                FILE *BECK = fopen("registroBeck.bin", "r+b");
+                                Beck aux;
+                                fread(&aux, sizeof(Beck), 1, BECK);
+                                do{
+                                    if(strcmp(aux.paciete, pacienteBuscado.nombre) == 0){
+                                        FILE *lectura = fopen("registroBeck.bin", "r+b");
+                                        Beck auxiliar2;
+                                        strcpy(aux.paciete, pac.nombre);
+                                        fread(&auxiliar2, sizeof(Beck), 1, lectura);
+                                        do{
+                                            if(strcmp(auxiliar2.paciete, pacienteBuscado.nombre) == 0){
+                                                fseek(lectura,-(long)sizeof(Beck),SEEK_CUR);
+                                                fwrite(&aux, sizeof(Beck), 1, lectura);
+                                                break;
+                                            }
+                                            fread(&auxiliar2, sizeof(Beck), 1, lectura);
+                                        } while (feof(lectura) == 0);
+                                        fclose(lectura);
+                                    }
+                                    fread(&aux, sizeof(Beck), 1, BECK);
+                                } while (feof(BECK) == 0);
+                                fclose(BECK);
+
+                                FILE *mdi = fopen("registroMDI.bin", "r+b");
+                                MDI auxi;
+                                fread(&auxi, sizeof(MDI), 1, mdi);
+                                do{
+                                    if(strcmp(auxi.paciete, pacienteBuscado.nombre) == 0){
+                                        FILE *lectura = fopen("registroMDI.bin", "r+b");
+                                        MDI auxiliar2;
+                                        strcpy(auxi.paciete, pac.nombre);
+                                        fread(&auxiliar2, sizeof(MDI), 1, lectura);
+                                        do{
+                                            if(strcmp(auxiliar2.paciete, pacienteBuscado.nombre) == 0){
+                                                fseek(lectura,-(long)sizeof(MDI),SEEK_CUR);
+                                                fwrite(&auxi, sizeof(MDI), 1, lectura);
+                                                break;
+                                            }
+                                            fread(&auxiliar2, sizeof(MDI), 1, lectura);
+                                        } while (feof(lectura) == 0);
+                                        fclose(lectura);
+                                    }
+                                    fread(&auxi, sizeof(MDI), 1, mdi);
+                                } while (feof(mdi) == 0);
+                                fclose(mdi);
+
+                                FILE *ZUNG = fopen("registroZung.bin", "r+b");
+                                Zung auxil;
+                                fread(&auxil, sizeof(Zung), 1, ZUNG);
+                                do{
+                                    if(strcmp(auxil.paciete, pacienteBuscado.nombre) == 0){
+                                        FILE *lectura = fopen("registroZung.bin", "r+b");
+                                        Zung auxiliar2;
+                                        strcpy(auxil.paciete, pac.nombre);
+                                        fread(&auxiliar2, sizeof(Zung), 1, lectura);
+                                        do{
+                                            if(strcmp(auxiliar2.paciete, pacienteBuscado.nombre) == 0){
+                                                fseek(lectura,-(long)sizeof(Zung),SEEK_CUR);
+                                                fwrite(&auxil, sizeof(Zung), 1, lectura);
+                                                break;
+                                            }
+                                            fread(&auxiliar2, sizeof(Zung), 1, lectura);
+                                        } while (feof(lectura) == 0);
+                                        fclose(lectura);
+                                    }
+                                    fread(&auxil, sizeof(Zung), 1, ZUNG);
+                                } while (feof(ZUNG) == 0);
+                                fclose(ZUNG);
+
+                                FILE *PHQ9 = fopen("registroPHQ9.bin", "r+b");
+                                Phq9 auxili;
+                                fread(&auxili, sizeof(Phq9), 1, PHQ9);
+                                do{
+                                    if(strcmp(auxili.paciete, pacienteBuscado.nombre) == 0){
+                                        FILE *lectura = fopen("registroPHQ9.bin", "r+b");
+                                        Phq9 auxiliar2;
+                                        strcpy(auxili.paciete, pac.nombre);
+                                        fread(&auxiliar2, sizeof(Phq9), 1, lectura);
+                                        do{
+                                            if(strcmp(auxiliar2.paciete, pacienteBuscado.nombre) == 0){
+                                                fseek(lectura,-(long)sizeof(Phq9),SEEK_CUR);
+                                                fwrite(&auxili, sizeof(Phq9), 1, lectura);
+                                                break;
+                                            }
+                                            fread(&auxiliar2, sizeof(Phq9), 1, lectura);
+                                        } while (feof(lectura) == 0);
+                                        fclose(lectura);
+                                    }
+                                    fread(&auxili, sizeof(Phq9), 1, PHQ9);
+                                } while (feof(PHQ9) == 0);
+                                fclose(PHQ9);
                             }   
                         break;
                     }else{
