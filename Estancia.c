@@ -34,7 +34,7 @@ typedef struct Pac{
     char correo[30];
     char login[100];
 }Paciente;
-
+  
 typedef struct Cues{
     int estado;
     int puntuacion;
@@ -139,8 +139,6 @@ void responderCuestionarios(Paciente *);
 void generarInformesPaciente(Paciente *);
 
 int main(){
-    setlocale(LC_CTYPE, "es_ES.UTF-8");
-    printf("\nÁ, Ñ ¿");
     Administrador admin;
     FILE *registroAdmin;
     int opcion, i, ciclo;
@@ -152,9 +150,9 @@ int main(){
             do{
                 opc[0] = '0';
                 printf("\n                         Inicio de sesion\n");
-                printf("\n(Ingrese el numero de usuario que le corresponde)");
+                printf("\n(Ingrese el número de usuario que le corresponde)");
                 printf("\n1) Administrador");
-                printf("\n2) Medico");
+                printf("\n2) Médico");
                 printf("\n3) Paciente");
                 printf("\n4) Salir\n");
                 scanf("%[^\n]%*c", opc);
@@ -179,7 +177,7 @@ int main(){
                             loginPaciente();
                             break;
                         case 4:
-                            printf("Cerrando programa.");
+                            printf("Cerrando programa...");
                             opcion = 4;
                             break;
                     }
@@ -234,7 +232,7 @@ void registroAdministrador(int CRUD, Administrador *admin){
         do{
             do{
                 strcpy(admin->cedula, negativo);
-                printf("Cedula profecional(8 caracteres): ");
+                printf("Cédula profesional(8 caracteres): ");
                 scanf("%[^\n]%*c", admin->cedula);
                 fflush(stdin);
                 longitud = strlen(admin->cedula);
@@ -244,7 +242,7 @@ void registroAdministrador(int CRUD, Administrador *admin){
             } while (longitud != 8);
             do{
                 opc[0] = '0';
-                printf("¿Continuar con la siguiente cedula [%s]?", admin->cedula);
+                printf("¿Continuar con la siguiente cédula [%s]?", admin->cedula);
                 printf("\n1)Si          2)No          ");
                 scanf("%[^\n]%*c", opc);
                 opcion = atoi(opc);
@@ -264,11 +262,11 @@ void registroAdministrador(int CRUD, Administrador *admin){
             } while (opcion != 1 && opcion != 2);
         } while (opcion == 2);
         strcpy(admin->login, admin->cedula);
-        printf("Direccion: ");
+        printf("Dirección: ");
         fflush(stdin);
         scanf("%[^\n]%*c", admin->direccion);
         do{
-            printf("Telefono(10 digitos): ");
+            printf("Teléfono(10 dígitos): ");
             fflush(stdin);
             scanf("%[^\n]%*c", admin->telefono);
             if(strlen(admin->telefono) == 10){
@@ -285,7 +283,7 @@ void registroAdministrador(int CRUD, Administrador *admin){
                 opcion = 0;
             }
         }while(opcion != 1);
-        printf("Correo electronico: ");
+        printf("Correo electrónico: ");
         fflush(stdin);
         scanf("%[^\n]%*c", admin->correo);
         fwrite(admin, sizeof(Administrador), 1, registroAdmin);
@@ -296,15 +294,15 @@ void registroAdministrador(int CRUD, Administrador *admin){
         int opcion, longitud, i;
         char opc[3];
         char contra[100];
-        printf("\n              Modificar informacion personal\n");
+        printf("\n              Modificar información personal\n");
         printf("\nNombre: %s", admin->nombre);
-        printf("\nCedula: %s", admin->cedula);
-        printf("\nDireccion: %s", admin->direccion);
-        printf("\nTelefono: %s", admin->telefono);
-        printf("\nCorreo electronico: %s", admin->correo);
+        printf("\nCédula: %s", admin->cedula);
+        printf("\nDirección: %s", admin->direccion);
+        printf("\nTeléfono: %s", admin->telefono);
+        printf("\nCorreo electrónico: %s", admin->correo);
         printf("\nContraseña: %s", admin->login);
         do{
-            printf("\nSi desea cambiar su informacion personal presione 1, de lo contrario presione 2: ");
+            printf("\nSi desea cambiar su información personal presione 1, de lo contrario presione 2: ");
             scanf("%[^\n]%*c", opc);
             opcion = atoi(opc);
             if (opcion != 1 && opcion != 2){
@@ -320,14 +318,14 @@ void registroAdministrador(int CRUD, Administrador *admin){
                 }
             }
         } while (opcion != 1 && opcion != 2);
-        printf("Si deseas omitir algun dato menos la contraseña solo preciona Enter\n");  
+        printf("Si desea omitir algún dato menos la contraseña solo presiona Enter\n");  
         if (opcion == 1){
             printf("\nIngrese el nuevo nombre completo: ");
             scanf("%[^\n]%*c", admin->nombre);
             fflush(stdin);
             do{
                 do{
-                    printf("Ingrese la nueva contraseña (Ingrese minimo 5 caracteres): ");
+                    printf("Ingrese la nueva contraseña (Ingrese mínimo 5 caracteres): ");
                     scanf("%[^\n]%*c", admin->login);
                     fflush(stdin);
                     longitud = strlen(admin->login);
@@ -343,7 +341,7 @@ void registroAdministrador(int CRUD, Administrador *admin){
                 }
             } while (strcmp(admin->login, contra) != 0);
             do{
-                printf("Cedula profesional (8 caracteres): ");
+                printf("Cédula profesional (8 caracteres): ");
                 scanf("%[^\n]%*c", admin->cedula);
                 fflush(stdin);
                 longitud = strlen(admin->cedula);
@@ -351,11 +349,11 @@ void registroAdministrador(int CRUD, Administrador *admin){
                     printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
                 }
             } while (longitud != 8);
-            printf("Direccion: ");
+            printf("Dirección: ");
             scanf("%[^\n]%*c", admin->direccion);
             fflush(stdin);
             do{
-                printf("Telefono(10 digitos): ");
+                printf("Teléfono(10 dígitos): ");
                 scanf("%[^\n]%*c", admin->telefono);
                 fflush(stdin);
                 if(strlen(admin->telefono) == 10){
@@ -372,10 +370,10 @@ void registroAdministrador(int CRUD, Administrador *admin){
                     opcion = 0;
                 }
             }while(opcion != 1);
-            printf("Correo electronico: ");
+            printf("Correo electrónico: ");
             scanf("%[^\n]%*c", admin->correo);
             fflush(stdin);
-            printf("Informacion actualizada con exito\n");
+            printf("Información actualizada con éxito\n");
             registroAdmin = fopen("registroAdmin.bin", "wb");
             fwrite(admin, sizeof(Administrador), 1, registroAdmin);
             fclose(registroAdmin);
@@ -392,12 +390,12 @@ void loginAdministrador(){
     do{
         printf("Ingrese su nombre:");
         scanf("%[^\n]%*c", nombreA);
-        printf("Ingrese su cedula:");
+        printf("Ingrese su cédula:");
         scanf("%[^\n]%*c", nombreL);
         Admin = validarloginadmin(nombreA,nombreL);
         intentos++;
         if(intentos == 3){
-            printf("\nHas alcanzado el maximo de intentos\n");
+            printf("\nHaz alcanzado el máximo de intentos\n");
             return;
         }
     }while(Admin.estado == 100);
@@ -432,9 +430,9 @@ void menuAdministrador(Administrador *ptradmin){
     do{
         opc[0] = '0';
         printf("\n          Bienvenido %s!\n", ptradmin->nombre);
-        printf("\n¿Que accion desea realizar? (Seleccione el número de la accion)");
-        printf("\n1) Modificar informacion personal");
-        printf("\n2) Gestionar Medico");
+        printf("\n¿Qué acción desea realizar? (Seleccione el número de la acción)");
+        printf("\n1) Modificar información personal");
+        printf("\n2) Gestionar Médico");
         printf("\n3) Generar informes");
         printf("\n4) Salir\n");
         scanf("%[^\n]%*c", opc);
@@ -458,7 +456,7 @@ void menuAdministrador(Administrador *ptradmin){
                     generarInformesAdministrador();
                     break;
                 case 4:
-                    printf("Cerrando sesion.\n");
+                    printf("Cerrando sesión.\n");
                     break;
             }
         }else{
@@ -474,12 +472,12 @@ void gestionarMedico(){
     char opc[100];
     do{
         opc[0] = '0';
-        printf("\n          Gestionar Medicos\n");
-        printf("\n¿Que accion desea realizar? (Seleccione el número de la accion)");
-        printf("\n1) Registrar a un nuevo medico");
-        printf("\n2) Actualizar informacion de un medico");
-        printf("\n3) Habilitar o deshabilitar a un medico");
-        printf("\n4) Elminar a un medico");
+        printf("\n          Gestionar Médicos\n");
+        printf("\n¿Qué acción desea realizar? (Seleccione el número de la acción)");
+        printf("\n1) Registrar a un nuevo médico");
+        printf("\n2) Actualizar información de un médico");
+        printf("\n3) Habilitar o deshabilitar a un médico");
+        printf("\n4) Eliminar a un médico");
         printf("\n5) Tranferir pacientes");
         printf("\n6) Salir\n");
         fflush(stdin);
@@ -519,7 +517,7 @@ void gestionarMedico(){
 }
 
 void registrarMedico(){
-    printf("\n              Registrar a un nuevo medico\n");
+    printf("\n              Registrar a un nuevo médico\n");
     Medico med;
     FILE *registrarMedico;
     int opcion, i, longitud;
@@ -532,7 +530,7 @@ void registrarMedico(){
         fclose(registrarMedico);
     }
     fclose(registrarMedico);
-    printf("\nIngrese los datos del medico:\n");
+    printf("\nIngrese los datos del médico:\n");
     med.estado = 1;
     do{
         printf("Nombre completo: ");
@@ -562,7 +560,7 @@ void registrarMedico(){
     do{
         do{
             strcpy(med.cedula, negativo);
-            printf("Cedula profecional(8 caracteres): ");
+            printf("Cédula profesional(8 caracteres): ");
             scanf("%[^\n]%*c", med.cedula);
             fflush(stdin);
             longitud = strlen(med.cedula);
@@ -572,7 +570,7 @@ void registrarMedico(){
         } while (longitud != 8);
         do{
             opc[0] = '0';
-            printf("¿Continuar con la siguiente cedula [%s]?", med.cedula);
+            printf("¿Continuar con la siguiente cédula [%s]?", med.cedula);
             printf("\n1)Si          2)No          ");
             scanf("%[^\n]%*c", opc);
             opcion = atoi(opc);
@@ -592,11 +590,11 @@ void registrarMedico(){
         } while (opcion != 1 && opcion != 2);
     } while (opcion == 2);
     strcpy(med.login, med.cedula);
-    printf("Direccion: ");
+    printf("Dirección: ");
     fflush(stdin);
     scanf("%[^\n]%*c", med.direccion);
     do{
-        printf("Telefono(10 digitos): ");
+        printf("Teléfono(10 dígitos): ");
         fflush(stdin);
         scanf("%[^\n]%*c", med.telefono);
         if(strlen(med.telefono) == 10){
@@ -613,11 +611,11 @@ void registrarMedico(){
             opcion = 0;
         }
     }while(opcion != 1);
-    printf("Correo electronico: ");
+    printf("Correo electrónico: ");
     fflush(stdin);
     scanf("%[^\n]%*c", med.correo);
     registrarMedico = fopen("registroMedico.bin", "ab");
-    printf("Medico agregado con exito!");
+    printf("Médico agregado con éxito!");
     fseek(registrarMedico, sizeof(Medico), SEEK_END);
     fwrite(&med, sizeof(Medico), 1, registrarMedico);
     fclose(registrarMedico);
@@ -631,24 +629,24 @@ void actualizarInformacionMedico(){
     char opc[100];
     char negativo[] = ("Salir");
     if (ptrmedicos == NULL){
-        printf("\nNo hay medicos registrados por el momento, regrese cuando alla registrado a algun medico\n");
+        printf("\nNo hay médicos registrados por el momento, regrese cuando haya registrado algún médico\n");
         fclose(ptrmedicos);
     }else{
         fclose(ptrmedicos);
         printf("\n                     Actualizar datos\n");
-        printf("\n¿Que medico desea actualizar los datos?");
-        printf("\n(Escriba el nombre del medico)");
+        printf("\n¿De qué médico desea actualizar los datos?");
+        printf("\n(Escriba el nombre del médico)");
         do{
             opc[0] = '0';
             ptrmedicos = fopen("registroMedico.bin", "rb");
-            printf("\nLista de medicos:");
+            printf("\nLista de médicos:");
             fread(&med, sizeof(Medico), 1, ptrmedicos);
             do{
                 printf("\n%s ", med.nombre);
                 fread(&med, sizeof(Medico), 1, ptrmedicos);
             } while (feof(ptrmedicos) == 0);
             fclose(ptrmedicos);
-            printf("\n(Si desea detener esta accion escriba 'Salir')\n");
+            printf("\n(Si desea detener ésta acción escriba 'Salir')\n");
             fflush(stdin);
             scanf("%[^\n]%*c", opc);
             if (strcmp(opc, negativo) != 0){
@@ -658,15 +656,15 @@ void actualizarInformacionMedico(){
                     if (strcmp(opc, med.nombre) == 0){
                         strcpy(medicoBuscado.nombre, med.nombre);
                         printf("\nNombre: %s", med.nombre);
-                        printf("\nCedula: %s", med.cedula);
-                        printf("\nDireccion: %s", med.direccion);
-                        printf("\nTelefono: %s", med.telefono);
-                        printf("\nCorreo electronico: %s", med.correo);
+                        printf("\nCédula: %s", med.cedula);
+                        printf("\nDirección: %s", med.direccion);
+                        printf("\nTeléfono: %s", med.telefono);
+                        printf("\nCorreo electrónico: %s", med.correo);
                         printf("\nContraseña: %s", med.login);
-                        printf("\nSi deseas omitir algun dato menos la contraseña solo preciona Enter\n");  
+                        printf("\nSi desea omitir algún dato menos la contraseña solo presiona Enter\n");  
                             do{
                                 respuesta[0] = '0';
-                                printf("¿Estas seguro de actualizar la informacion de este medico?");
+                                printf("¿Estás seguro de actualizar la información de éste médico?");
                                 printf("\n[%s]     1)Si    2)No     ", med.nombre);
                                 fflush(stdin);
                                 scanf("%[^\n]%*c", respuesta);
@@ -688,13 +686,13 @@ void actualizarInformacionMedico(){
                             if (opcion == 1){
                                 int opcion, longitud, i;
                                 char contra[100];
-                                printf("\n              Modificar informacion personal\n");
+                                printf("\n              Modificar información personal\n");
                                 printf("\nIngrese el nuevo nombre completo: ");
                                 scanf("%[^\n]%*c", med.nombre);
                                 fflush(stdin);
                                 do{
                                     do{
-                                        printf("Ingrese la nueva contraseña (Ingrese minimo 5 caracteres): ");
+                                        printf("Ingrese la nueva contraseña (Ingrese mínimo 5 caracteres): ");
                                         scanf("%[^\n]%*c", med.login);
                                         fflush(stdin);
                                         longitud = strlen(med.login);
@@ -710,7 +708,7 @@ void actualizarInformacionMedico(){
                                     }
                                 } while (strcmp(med.login, contra) != 0);
                                 do{
-                                    printf("Cedula profesional (8 caracteres): ");
+                                    printf("Cédula profesional (8 caracteres): ");
                                     scanf("%[^\n]%*c", med.cedula);
                                     fflush(stdin);
                                     longitud = strlen(med.cedula);
@@ -718,11 +716,11 @@ void actualizarInformacionMedico(){
                                         printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
                                     }
                                 } while (longitud != 8);
-                                printf("Direccion: ");
+                                printf("Dirección: ");
                                 scanf("%[^\n]%*c", med.direccion);
                                 fflush(stdin);
                                 do{
-                                    printf("Telefono(10 digitos): ");
+                                    printf("Teléfono(10 dígitos): ");
                                     scanf("%[^\n]%*c", med.telefono);
                                     fflush(stdin);
                                     if(strlen(med.telefono) == 10){
@@ -739,10 +737,10 @@ void actualizarInformacionMedico(){
                                         opcion = 0;
                                     }
                                 }while(opcion != 1);
-                                printf("Correo electronico: ");
+                                printf("Correo electrónico: ");
                                 scanf("%[^\n]%*c", med.correo);
                                 fflush(stdin);
-                                printf("Informacion actualizada con exito\n");
+                                printf("Información actualizada con éxito\n");
                                 fseek(ptrmedicos,-(long)sizeof(Medico),SEEK_CUR);
                                 fwrite(&med, sizeof(Medico), 1, ptrmedicos);
                                 FILE *modName = fopen("registroPaciente.bin", "r+b");
@@ -775,14 +773,14 @@ void actualizarInformacionMedico(){
                     }
                 } while (feof(ptrmedicos) == 0);
                 if (opcion == 0){
-                    printf("Medico no encontrado, intentelo nuevamente");
+                    printf("Médico no encontrado, intentelo nuevamente");
                 }
             }else{
                 opcion = 1;
             }
             fclose(ptrmedicos);
         } while (opcion == 0 || opcion == 2);
-        printf("Saliendo al menu Gestionar medicos\n");
+        printf("Saliendo al menú Gestionar médicos\n");
     }
 }
 
@@ -794,17 +792,17 @@ void cambiarEstatusMedico(){
     char opc[100];
     char negativo[] = ("Salir");
     if (ptrmedicos == NULL){
-        printf("\nNo hay medicos registrados por el momento, regrese cuando alla registrado a algun medico\n");
+        printf("\nNo hay médicos registrados por el momento, regrese cuando haya registrado algún médico\n");
         fclose(ptrmedicos);
     }else{
         fclose(ptrmedicos);
         printf("\n                     Habilitar o deshabilitar\n");
-        printf("\n¿Que medico desea habilitar o deshabilitar?");
-        printf("\n(Escriba el nombre del medico)");
+        printf("\n¿Qué médico desea habilitar o deshabilitar?");
+        printf("\n(Escriba el nombre del médico)");
         do{
             opc[0] = '0';
             ptrmedicos = fopen("registroMedico.bin", "rb");
-            printf("\nLista de medicos:");
+            printf("\nLista de médicos:");
             fread(&med, sizeof(Medico), 1, ptrmedicos);
             do{
                 printf("\n%s ", med.nombre);
@@ -817,7 +815,7 @@ void cambiarEstatusMedico(){
                 fread(&med, sizeof(Medico), 1, ptrmedicos);
             } while (feof(ptrmedicos) == 0);
             fclose(ptrmedicos);
-            printf("\n(Si desea detener esta accion escriba 'Salir')\n");
+            printf("\n(Si desea detener esta acción escriba 'Salir')\n");
             fflush(stdin);
             scanf("%[^\n]%*c", opc);
             if (strcmp(opc, negativo) != 0){
@@ -828,7 +826,7 @@ void cambiarEstatusMedico(){
                         if (med.estado == 1){
                             do{
                                 respuesta[0] = '0';
-                                printf("¿Estas seguro de inhabilitar a este medico?");
+                                printf("¿Estás seguro de inhabilitar a este médico?");
                                 printf("\n[%s]     1)Si    2)No     ", med.nombre);
                                 fflush(stdin);
                                 scanf("%[^\n]%*c", respuesta);
@@ -851,13 +849,13 @@ void cambiarEstatusMedico(){
                                 med.estado = 0;
                                 fseek(ptrmedicos,-(long)sizeof(Medico),SEEK_CUR);
                                 fwrite(&med, sizeof(Medico), 1, ptrmedicos);
-                                printf("Deshabilitado!\n");
+                                printf("¡Deshabilitado!\n");
                             }
                         }else{
                             if (med.estado == 0){
                                 do{
                                     respuesta[0] = '0';
-                                    printf("¿Estas seguro de habilitar a este medico?");
+                                    printf("¿Estás seguro de habilitar a este médico?");
                                     printf("\n[%s]     1)Si    2)No     ", med.nombre);
                                     fflush(stdin);
                                     scanf("%[^\n]%*c", respuesta);
@@ -880,7 +878,7 @@ void cambiarEstatusMedico(){
                                     med.estado = 1;
                                     fseek(ptrmedicos,-(long)sizeof(Medico),SEEK_CUR);
                                     fwrite(&med, sizeof(Medico), 1, ptrmedicos);
-                                    printf("Habilitado!\n");
+                                    printf("¡Habilitado!\n");
                                 }
                             }
                         }
@@ -891,14 +889,14 @@ void cambiarEstatusMedico(){
                     }
                 } while (feof(ptrmedicos) == 0);
                 if (opcion == 0){
-                    printf("Medico no encontrado, intentelo nuevamente");
+                    printf("Médico no encontrado, intentelo nuevamente");
                 }
             }else{
                 opcion = 1;
             }
             fclose(ptrmedicos);
         } while (opcion == 0 || opcion == 2);
-        printf("Saliendo al menu Gestionar medicos\n");
+        printf("Saliendo al menú Gestionar médicos\n");
     }
 }
 
@@ -910,18 +908,18 @@ void eliminarMedico(){
     char opc[100];
     char negativo[] = ("Salir");
     if (ptrmedicos == NULL){
-        printf("\nNo hay medicos registrados por el momento, regrese cuando alla registrado a algun medico\n");
+        printf("\nNo hay médicos registrados por el momento, regrese cuando haya registrado a algún médico\n");
         fclose(ptrmedicos);
     }else{
         fclose(ptrmedicos);
-        printf("\n                     Eliminar medico\n");
-        printf("\nPara eliminar un medico primero debe deshabilitarlo y tampoco debe tener pacientes registrados a su nombre");
-        printf("\n¿Que medico desea eliminar?");
-        printf("\n(Escriba el nombre del medico)");
+        printf("\n                     Eliminar médico\n");
+        printf("\nPara eliminar un médico primero debe deshabilitarlo, además no debe contar con pacientes registrados");
+        printf("\n¿Qué médico desea eliminar?");
+        printf("\n(Escriba el nombre del médico)");
         do{
             opc[0] = '0';
             ptrmedicos = fopen("registroMedico.bin", "rb");
-            printf("\nLista de medicos deshabilitados:");
+            printf("\nLista de médicos deshabilitados:");
             fread(&medicos, sizeof(Medico), 1, ptrmedicos);
             do{
                 if (medicos.estado == 0){
@@ -930,7 +928,7 @@ void eliminarMedico(){
                 fread(&medicos, sizeof(Medico), 1, ptrmedicos);
             } while (feof(ptrmedicos) == 0);
             fclose(ptrmedicos);
-            printf("\n(Si desea detener esta accion escriba 'Salir')\n");
+            printf("\n(Si desea detener esta acción escriba 'Salir')\n");
             fflush(stdin);
             scanf("%[^\n]%*c", opc);
             if (strcmp(opc, negativo) != 0){
@@ -953,7 +951,7 @@ void eliminarMedico(){
                         if (check == 1){
                             do{
                                 respuesta[0] = '0';
-                                printf("¿Estas seguro de eliminar a este medico?");
+                                printf("¿Estás seguro de eliminar a éste médico?");
                                 printf("\n[%s]     1)Si    2)No     ", copiaMedicos.nombre);
                                 fflush(stdin);
                                 scanf("%[^\n]%*c", respuesta);
@@ -988,7 +986,7 @@ void eliminarMedico(){
                                 rename("registroMedicoCopia.bin", "registroMedico.bin");
                             }
                         }else{
-                            printf("El medico ingresado tiene pacientes registrados, por lo tanto no fue posible eliminarlo");
+                            printf("El médico ingresado tiene pacientes registrados, por lo tanto no fue posible eliminarlo");
                         }
                         break;
                     }else{
@@ -998,16 +996,27 @@ void eliminarMedico(){
                     }
                 } while (feof(ptrmedicos) == 0);
                 if (opcion == 0){
-                    printf("Medico no encontrado, intentelo nuevamente");
+                    printf("Médico no encontrado, intentelo nuevamente");
                 }
             }else{
                 opcion = 1;
             }
             fclose(ptrmedicos);
         } while (opcion == 0 || opcion == 2);
-        printf("Saliendo al menu Gestionar medicos\n");
+        printf("Saliendo al menú| Gestionar médicos\n");
     }
 }
+
+//Coregir
+//Coregir
+//Coregir
+//Coregir
+//Coregir
+//Coregir
+//Coregir
+//Coregir
+//Coregir
+//Coregir
 
 void transferirPacientes() {
     Paciente pac, pacienteBuscado;
@@ -1146,7 +1155,7 @@ void generarInformesAdministrador(){
     char estat[20];
     archivo = fopen("registroMedico.bin", "rb");
     if(archivo == NULL){
-        printf("\nNo hay medicos registrados por el momento, regrese cuando alla registrado a algun medico\n");
+        printf("\nNo hay médicos registrados por el momento, regrese cuando haya registrado a algún médico\n");
         fclose(archivo);
         return;
     }
@@ -1172,17 +1181,17 @@ void generarInformesAdministrador(){
        printf("-");
     }
     printf("\n");
-    printf("La cantidad de medicos son: %d\n", cont);
+    printf("La cantidad de médicos son: %d\n", cont);
     for (int i = 0; i < 50; i++){
        printf("-");
     }
     printf("\n");
-    printf("La cantidad de medicos inactivos son: %d\n", desh);
+    printf("La cantidad de médicos inactivos son: %d\n", desh);
     for (int i = 0; i < 50; i++){
        printf("-");
     }
     printf("\n");
-    printf("La cantidad de medicos activos son: %d\n", habi);
+    printf("La cantidad de médicos activos son: %d\n", habi);
     fclose(archivo);
     printf("\n");
     continuar();
@@ -1190,12 +1199,12 @@ void generarInformesAdministrador(){
 
 void continuar(){
     int conti;
-    printf("Presione 1 + enter para continuar: \n\n");
+    printf("Presione 1 + Enter para continuar: \n\n");
     scanf("%d%*c", &conti);
 }
 
 void loginMedico(){ 
-    printf("\nLogin Medico\n");
+    printf("\nLogin Médico\n");
     Medico Med;
     char nombreA[100];
     char nombreL[100];
@@ -1203,16 +1212,16 @@ void loginMedico(){
     do{
         printf("Ingrese su nombre:");
         scanf("%[^\n]%*c", nombreA);
-        printf("Ingrese su cedula:");
+        printf("Ingrese su cédula:");
         scanf("%[^\n]%*c", nombreL);
         Med = validarloginmed(nombreA,nombreL);
         if (Med.estado == -100){
-            printf("\nNo hay ningun medico registrado por el momento\n");
+            printf("\nNo hay ningún médico registrado por el momento\n");
             return;
         }
         intentos++;
         if(intentos == 3){
-            printf("\nHas alcanzado el maximo de intentos\n");
+            printf("\nHaz alcanzado el máximo de intentos\n");
             return;
         }
     }while(Med.estado == 100);
@@ -1251,10 +1260,10 @@ void menuMedico(Medico *ptrmedico){
     do{
         opc[0] = '0';
         printf("\n          Bienvenido %s!\n", ptrmedico->nombre);
-        printf("\n¿Que accion desea realizar? (Seleccione el número de la accion)");
-        printf("\n1) Modificar informacion personal");
+        printf("\n¿Qué acción desea realizar? (Seleccione el número de la acción)");
+        printf("\n1) Modificar información personal");
         printf("\n2) Gestionar Pacientes");
-        printf("\n3) Generar informes");
+        printf("\n3) Generar Informes");
         printf("\n4) Salir\n");
         scanf("%[^\n]%*c", opc);
         opcion = atoi(opc);
@@ -1277,7 +1286,7 @@ void menuMedico(Medico *ptrmedico){
                     generarInformesMedico();
                     break;
                 case 4:
-                    printf("Cerrando sesion.\n");
+                    printf("Cerrando sesión...\n");
                     break;
             }
         }else{
@@ -1294,15 +1303,15 @@ void modificarInformacionMedico(Medico **medico){
     char opc[100];
     char contra[100];
     strcpy(medicoBuscado.nombre, (*medico)->nombre);
-    printf("\n              Modificar informacion personal\n");
+    printf("\n              Modificar información personal\n");
     printf("\nNombre: %s", (*medico)->nombre);
-    printf("\nCedula: %s", (*medico)->cedula);
-    printf("\nDireccion: %s", (*medico)->direccion);
-    printf("\nTelefono: %s", (*medico)->telefono);
-    printf("\nCorreo electronico: %s", (*medico)->correo);
+    printf("\nCédula: %s", (*medico)->cedula);
+    printf("\nDirección: %s", (*medico)->direccion);
+    printf("\nTeléfono: %s", (*medico)->telefono);
+    printf("\nCorreo electrónico: %s", (*medico)->correo);
     printf("\nContraseña: %s", (*medico)->login);
     do{
-        printf("\nSi desea cambiar su informacion personal presione 1, de lo contrario presione 2: ");
+        printf("\nSi desea cambiar su información personal presione 1, de lo contrario presione 2: ");
         scanf("%[^\n]%*c", opc);
         opcion = atoi(opc);
         if (opcion != 1 && opcion != 2){
@@ -1318,14 +1327,14 @@ void modificarInformacionMedico(Medico **medico){
             }
         }
     } while (opcion != 1 && opcion != 2);
-    printf("Si deseas omitir algun dato menos la contraseña solo preciona Enter\n");  
+    printf("Si desea omitir algún dato menos la contraseña solo presiona Enter\n");  
     if (opcion == 1){
         printf("\nIngrese el nuevo nombre completo: ");
         scanf("%[^\n]%*c", (*medico)->nombre);
         fflush(stdin);
         do{
             do{
-                printf("Ingrese la nueva contraseña (Ingrese minimo 5 caracteres): ");
+                printf("Ingrese la nueva contraseña (Ingrese mínimo 5 caracteres): ");
                 scanf("%[^\n]%*c", (*medico)->login);
                 fflush(stdin);
                 longitud = strlen((*medico)->login);
@@ -1341,7 +1350,7 @@ void modificarInformacionMedico(Medico **medico){
             }
         } while (strcmp((*medico)->login, contra) != 0);
         do{
-            printf("Cedula profesional (8 caracteres): ");
+            printf("Cédula profesional (8 caracteres): ");
             scanf("%[^\n]%*c", (*medico)->cedula);
             fflush(stdin);
             longitud = strlen((*medico)->cedula);
@@ -1349,11 +1358,11 @@ void modificarInformacionMedico(Medico **medico){
                 printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
             }
         } while (longitud != 8);
-        printf("Direccion: ");
+        printf("Dirección: ");
         scanf("%[^\n]%*c", (*medico)->direccion);
         fflush(stdin);
         do{
-            printf("Telefono(10 digitos): ");
+            printf("Teléfono(10 dígitos): ");
             scanf("%[^\n]%*c", (*medico)->telefono);
             fflush(stdin);
             if(strlen((*medico)->telefono) == 10){
@@ -1370,10 +1379,10 @@ void modificarInformacionMedico(Medico **medico){
                 opcion = 0;
             }
         }while(opcion != 1);
-        printf("Correo electronico: ");
+        printf("Correo electrónico: ");
         scanf("%[^\n]%*c", (*medico)->correo);
         fflush(stdin);
-        printf("Informacion actualizada con exito\n");
+        printf("Información actualizada con éxito\n");
         FILE *modMedico = fopen("registroMedico.bin", "r+b");
         fread(&aux, sizeof(Medico), 1, modMedico);
         do{
@@ -1416,11 +1425,11 @@ void gestionarPaciente(Medico *medico){
     do{
         opc[0] = '0';
         printf("\n          Gestionar Pacientes\n");
-        printf("\n¿Que accion desea realizar? (Seleccione el número de la accion)");
+        printf("\n¿Qué acción desea realizar? (Seleccione el número de la acción)");
         printf("\n1) Registrar a un nuevo paciente");
         printf("\n2) Actualizar informacion de un paciente");
         printf("\n3) Habilitar o deshabilitar a un paciente");
-        printf("\n4) Evaluar Pacientes");
+        printf("\n4) Evaluar pacientes");
         printf("\n5) Elminar a un paciente");
         printf("\n6) Salir\n");
         fflush(stdin);
@@ -1536,7 +1545,7 @@ void registrarPaciente(Medico *medico){
     strcpy(pac.login, pac.nss);
     fflush(stdin);
     do{
-        printf("Telefono(10 digitos): ");
+        printf("Teléfono(10 dígitos): ");
         fflush(stdin);
         scanf("%[^\n]%*c", pac.telefono);
         if(strlen(pac.telefono) == 10){
@@ -1553,7 +1562,7 @@ void registrarPaciente(Medico *medico){
             opcion = 0;
         }
     }while(opcion != 1);
-    printf("Correo electronico: ");
+    printf("Correo electrónico: ");
     fflush(stdin);
     scanf("%[^\n]%*c", pac.correo);
     registrarPaciente = fopen("registroPaciente.bin", "ab");
@@ -1570,12 +1579,12 @@ void actualizarInformacionPaciente(Medico *medico){
     char opc[100];
     char negativo[] = ("Salir");
     if (ptrpacientes == NULL){
-        printf("\nNo hay pacientes registrados por el momento, regrese cuando alla registrado a algun medico\n");
+        printf("\nNo hay pacientes registrados por el momento, regrese cuando haya registrado algún paciente\n");
         fclose(ptrpacientes);
     }else{
         fclose(ptrpacientes);
         printf("\n                     Actualizar datos\n");
-        printf("\n¿De que paciente desea actualizar los datos?");
+        printf("\n¿De qué paciente desea actualizar los datos?");
         printf("\n(Escriba el nombre del paciente)");
         do{
             opc[0] = '0';
@@ -1589,7 +1598,7 @@ void actualizarInformacionPaciente(Medico *medico){
                 fread(&pac, sizeof(Paciente), 1, ptrpacientes);
             } while (feof(ptrpacientes) == 0);
             fclose(ptrpacientes);
-            printf("\n(Si desea detener esta accion escriba 'Salir')\n");
+            printf("\n(Si desea detener ésta acción escriba 'Salir')\n");
             fflush(stdin);
             scanf("%[^\n]%*c", opc);
             if (strcmp(opc, negativo) != 0){
@@ -1598,16 +1607,16 @@ void actualizarInformacionPaciente(Medico *medico){
                 do{
                     if ((strcmp(opc, pac.nombre) == 0) && (strcmp(medico->nombre, pac.medico) == 0)){
                         strcpy(pacienteBuscado.nombre, pac.nombre);
-                        printf("\n              Modificar informacion personal\n");
+                        printf("\n              Modificar información personal\n");
                         printf("\nNombre: %s", pac.nombre);
                         printf("\nNSS: %s", pac.nss);
-                        printf("\nTelefono: %s", pac.telefono);
-                        printf("\nCorreo electronico: %s", pac.correo);
+                        printf("\nTeléfono: %s", pac.telefono);
+                        printf("\nCorreo electrónico: %s", pac.correo);
                         printf("\nContraseña: %s", pac.login);
-                        printf("\nSi deseas omitir algun dato menos la contraseña solo preciona Enter\n");  
+                        printf("\nSi desea omitir algún dato menos la contraseña solo presiona Enter\n");  
                             do{
                                 respuesta[0] = '0';
-                                printf("¿Estas seguro de actualizar la informacion de este paciente?");
+                                printf("¿Estás seguro de actualizar la información de éste paciente?");
                                 printf("\n[%s]     1)Si    2)No     ", pac.nombre);
                                 fflush(stdin);
                                 scanf("%[^\n]%*c", respuesta);
@@ -1634,7 +1643,7 @@ void actualizarInformacionPaciente(Medico *medico){
                                 fflush(stdin);
                                     do{
                                         do{
-                                            printf("Ingrese la nueva contraseña (Ingrese minimo 5 caracteres): ");
+                                            printf("Ingrese la nueva contraseña (Ingrese mínimo 5 caracteres): ");
                                             scanf("%[^\n]%*c", pac.login);
                                             fflush(stdin);
                                             longitud = strlen(pac.login);
@@ -1650,7 +1659,7 @@ void actualizarInformacionPaciente(Medico *medico){
                                     }
                                     } while (strcmp(pac.login, contra) != 0);
                                     do{
-                                        printf("Numero de seguridad social NSS (11 caracteres): ");
+                                        printf("Número de seguridad social NSS (11 caracteres): ");
                                         scanf("%[^\n]%*c", pac.nss);
                                         fflush(stdin);
                                         longitud = strlen(pac.nss);
@@ -1660,7 +1669,7 @@ void actualizarInformacionPaciente(Medico *medico){
                                     } while (longitud != 11);
                                     fflush(stdin);
                                     do{
-                                        printf("Telefono(10 digitos): ");
+                                        printf("Teléfono(10 dígitos): ");
                                         scanf("%[^\n]%*c", pac.telefono);
                                         fflush(stdin);
                                         if(strlen(pac.telefono) == 10){
@@ -1677,11 +1686,10 @@ void actualizarInformacionPaciente(Medico *medico){
                                             opcion = 0;
                                         }
                                     }while(opcion != 1);
-                                    printf("Correo electronico: ");
+                                    printf("Correo electrónico: ");
                                     scanf("%[^\n]%*c", pac.correo);
                                     fflush(stdin);
-                                    printf("Informacion actualizada con exito\n");
-                                    printf("Informacion actualizada con exito\n");
+                                    printf("Información actualizada con éxito\n");
                                     fseek(ptrpacientes,-(long)sizeof(Paciente),SEEK_CUR);
                                     fwrite(&pac, sizeof(Paciente), 1, ptrpacientes);
 
@@ -1715,14 +1723,14 @@ void actualizarInformacionPaciente(Medico *medico){
                     }
                 } while (feof(ptrpacientes) == 0);
                 if (opcion == 0){
-                    printf("Paciente no encontrado, intentelo nuevamente");
+                    printf("Paciente no encontrado, inténtelo nuevamente");
                 }
             }else{
                 opcion = 1;
             }
             fclose(ptrpacientes);
         } while (opcion == 0 || opcion == 2);
-        printf("Saliendo al menu Gestionar pacientes\n");
+        printf("Saliendo al menú Gestionar pacientes\n");
     }
 }
 
@@ -1734,12 +1742,12 @@ void cambiarEstatusPaciente(Medico *medico){
     char opc[100];
     char negativo[] = ("Salir");
     if (ptrpacientes == NULL){
-        printf("\nNo hay pacientes registrados por el momento, regrese cuando alla registrado a algun paciente\n");
+        printf("\nNo hay pacientes registrados por el momento, regrese cuando haya registrado a algún paciente\n");
         fclose(ptrpacientes);
     }else{
         fclose(ptrpacientes);
         printf("\n                     Habilitar o deshabilitar\n");
-        printf("\n¿Que paciente desea habilitar o deshabilitar?");
+        printf("\n¿Qué paciente desea habilitar o deshabilitar?");
         printf("\n(Escriba el nombre del paciente)");
         do{
             opc[0] = '0';
@@ -1759,7 +1767,7 @@ void cambiarEstatusPaciente(Medico *medico){
                 fread(&pac, sizeof(Paciente), 1, ptrpacientes);
             } while (feof(ptrpacientes) == 0);
             fclose(ptrpacientes);
-            printf("\n(Si desea detener esta accion escriba 'Salir')\n");
+            printf("\n(Si desea detener esta acción escriba 'Salir')\n");
             fflush(stdin);
             scanf("%[^\n]%*c", opc);
             if (strcmp(opc, negativo) != 0){
@@ -1770,19 +1778,19 @@ void cambiarEstatusPaciente(Medico *medico){
                         if (pac.estado == 1){
                             do{
                                 respuesta[0] = '0';
-                                printf("¿Estas seguro de inhabilitar a este paciente?");
+                                printf("¿Está seguro de inhabilitar a este paciente?");
                                 printf("\n[%s]     1)Si    2)No     ", pac.nombre);
                                 fflush(stdin);
                                 scanf("%[^\n]%*c", respuesta);
                                 opcion = atoi(respuesta);
                                 fflush(stdin);
                                 if (opcion != 1 && opcion != 2){
-                                    printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                    printf("El dato ingresado no es valido, por favor inténtelo nuevamente\n");
                                     fflush(stdin);
                                 }else{
                                     for (i = 0; i < (int)strlen(respuesta); i++){
                                         if (!isdigit(respuesta[i])){
-                                            printf("El dato ingresado no es valido, por favor intentalo nuevamente\n");
+                                            printf("El dato ingresado no es valido, por favor inténtelo nuevamente\n");
                                             opcion = 0;
                                             break;
                                         }
@@ -1840,7 +1848,7 @@ void cambiarEstatusPaciente(Medico *medico){
             }
             fclose(ptrpacientes);
         } while (opcion == 0 || opcion == 2);
-        printf("Saliendo al menu Gestionar pacientes\n");
+        printf("Saliendo al menú Gestionar pacientes\n");
     }
 }
 
@@ -1851,12 +1859,12 @@ void evaluarPaciente(Medico *medico){
     char opc[100];
     char negativo[] = ("Salir");
     if (ptrpacientes == NULL){
-        printf("\nNo hay pacientes registrados por el momento, regrese cuando alla registrado a algun medico\n");
+        printf("\nNo hay pacientes registrados por el momento, regrese cuando haya registrado a algún paciente\n");
         fclose(ptrpacientes);
     }else{
         fclose(ptrpacientes);
         printf("\nEvaluar pacientes\n");
-        printf("\n¿Que paciente desea evaluar?");
+        printf("\n¿Qué paciente desea evaluar?");
         printf("\n(Escriba el nombre del paciente)");
         do
         {
@@ -1871,7 +1879,7 @@ void evaluarPaciente(Medico *medico){
                 fread(&pac, sizeof(Paciente), 1, ptrpacientes);
             } while (feof(ptrpacientes) == 0);
             fclose(ptrpacientes);
-            printf("\n(Si desea detener esta accion escriba 'Salir')\n");
+            printf("\n(Si desea detener esta acción escriba 'Salir')\n");
             fflush(stdin);
             scanf("%[^\n]%*c", opc);
             if (strcmp(opc, negativo) != 0){
@@ -1895,7 +1903,7 @@ void evaluarPaciente(Medico *medico){
             }
             fclose(ptrpacientes);
         } while (opcion == 0 || opcion == 2);
-        printf("Saliendo al menu Gestionar pacientes\n");
+        printf("Saliendo al menú Gestionar pacientes\n");
     }
 }
 
@@ -1905,8 +1913,8 @@ void evaluacion(Paciente *ptrpaciente){
     do{
         opc[0] = '0';
         printf("\n          %s\n", ptrpaciente->nombre);
-        printf("\n¿Que accion desea realizar? (Seleccione el número de la accion)");
-        printf("\n1) Registrar consulta (Se registrara la fecha de hoy)");
+        printf("\n¿Qué acción desea realizar? (Seleccione el número de la acción)");
+        printf("\n1) Registrar consulta (Se registrará la fecha de hoy)");
         printf("\n2) Agregar observaciones o recomendaciones");
         printf("\n3) Asignar cuestionario");
         printf("\n4) Ver resultados de los cuestionarios");
@@ -1987,7 +1995,7 @@ void registrarConsulta(Paciente *ptrpaciente){
         fclose(ptrCuestionarios);
     }
     if (opcion == 0){
-        printf("\nSolo puede registrar una cita por dia\n");
+        printf("\nSolo puede registrar una cita por día\n");
     }
 }
 
@@ -1998,15 +2006,15 @@ void observaciones(Paciente *ptrpaciente){
     char respuesta[100];
     char negativo[] = ("Salir");
     if (ptrCuestionarios == NULL){
-        printf("\nNo hay ninguna consulta registrada, vuelva cuando registre alguna consulta.\n");
+        printf("\nNo hay consulta registrada, vuelva cuando haya registrado alguna.\n");
         fclose(ptrCuestionarios);
         return;
     }
     fclose(ptrCuestionarios);
-    printf("\n¿A que fecha desea agregar observaciones?\n");
+    printf("\n¿En qué fecha desea agregar observaciones?\n");
     do{
         cont = 1;
-        printf("\nEscriba el numero de la fecha de la consulta\n");
+        printf("\nEscriba el número de la fecha de la consulta\n");
         ptrCuestionarios = fopen("registroCuestionarios.bin", "rb");
         fread(&cues, sizeof(Cuestionarios), 1, ptrCuestionarios);
         do{
@@ -2017,7 +2025,7 @@ void observaciones(Paciente *ptrpaciente){
             fread(&cues, sizeof(Cuestionarios), 1, ptrCuestionarios);
         } while (feof(ptrCuestionarios) == 0);
         fclose(ptrCuestionarios);
-        printf("(Si desea detener esta accion escriba 'Salir')\n");
+        printf("(Si desea detener esta acción escriba 'Salir')\n");
         fflush(stdin);
         scanf("%[^\n]%*c", respuesta);
         opcion = atoi(respuesta);
@@ -2046,7 +2054,7 @@ void observaciones(Paciente *ptrpaciente){
         if (strcmp(ptrpaciente->nombre, cues.paciente) == 0){
             if (opcion == cont){
                 fseek(ptrcues, -(long)sizeof(Cuestionarios), SEEK_CUR);
-                printf("A continuacion escriba las observacioneo recomendaciones que desee agregar\n");
+                printf("A continuación escriba las observaciones o recomendaciones que desee agregar\n");
                 fflush(stdin);
                 scanf("%[^\n]%*c", cues.observaciones);
                 fflush(stdin);
@@ -2069,15 +2077,15 @@ void asignarCuestionarios(Paciente *ptrpaciente){
     char respuesta[100];
     char negativo[] = ("Salir");
     if (ptrCuestionarios == NULL){
-        printf("\nNo hay ninguna consulta registrada, vuelva cuando registre alguna consulta.\n");
+        printf("\nNo hay consulta registrada, vuelva cuando haya registrado alguna.\n");
         fclose(ptrCuestionarios);
         return;
     }
     fclose(ptrCuestionarios);
-    printf("\n¿A que fecha desea agregar un cuestionario?\n");
+    printf("\n¿En qué fecha desea agregar un cuestionario?\n");
     do{
         cont = 1;
-        printf("\nEscriba el numero de la fecha de la consulta\n");
+        printf("\nEscriba el número de la fecha de la consulta\n");
         ptrCuestionarios = fopen("registroCuestionarios.bin", "rb");
         fread(&cues, sizeof(Cuestionarios), 1, ptrCuestionarios);
         do{
@@ -2118,7 +2126,7 @@ void asignarCuestionarios(Paciente *ptrpaciente){
             if (opcion == cont){
                 fseek(ptrcues, -(long)sizeof(Cuestionarios), SEEK_CUR);
                 do{
-                    printf("Escriba el numero del cuestionario que desea agregar");
+                    printf("Escriba el número del cuestionario que desea agregar");
                     printf("\n1) Cuestionario de Beck");
                     printf("\n2) Cuestionario de Depresión Mayor (MDI)");
                     printf("\n3) Cuestionario de de Zung");
@@ -2175,7 +2183,7 @@ void verResultados(Paciente *ptrpaciente){
     char negativo[] = ("Salir");
     */
     if (ptrCuestionarios == NULL){
-        printf("\nNo hay ninguna consulta registrada, vuelva cuando registre alguna consulta.\n");
+        printf("\nNo hay consulta registrada, vuelva cuando haya registrado alguna.\n");
         fclose(ptrCuestionarios);
         return;
     }
@@ -2190,18 +2198,18 @@ void verResultados(Paciente *ptrpaciente){
                 do{
                     if ((strcmp(cues.paciente, preg.paciete) == 0) && (strcmp(cues.fecha, preg.fecha) == 0)){
                         printf("\nFecha de la consulta %s", cues.fecha);
-                        printf("Cuestionario de beck, puntuacion: %d/63", cues.puntuacion);
+                        printf("Cuestionario de beck, puntuación: %d/63", cues.puntuacion);
                         if (cues.puntuacion <= 13){
-                            printf("\nDepresion leve");
+                            printf("\nDepresión leve");
                         }
                         if (cues.puntuacion >= 14 && cues.puntuacion <= 19){
-                            printf("\nDepresion moderada");
+                            printf("\nDepresión moderada");
                         }
                         if (cues.puntuacion >= 20 && cues.puntuacion <= 28){
-                            printf("\nDepresion moderada-severa");
+                            printf("\nDepresión moderada-severa");
                         }
                         if (cues.puntuacion >= 29){
-                            printf("\nDepresion severa");
+                            printf("\nDepresión severa");
                         }
                         printf("\nRespuestas");
                         for (i = 0; i < 21; i++){
@@ -2222,18 +2230,18 @@ void verResultados(Paciente *ptrpaciente){
                 do{
                     if ((strcmp(cues.paciente, pregu.paciete) == 0) && (strcmp(cues.fecha, pregu.fecha) == 0)){
                         printf("\nFecha de la consulta %s", cues.fecha);
-                        printf("Cuestionario de MDI, puntuacion: %d/65", cues.puntuacion);
+                        printf("Cuestionario de MDI, puntuación: %d/65", cues.puntuacion);
                         if (cues.puntuacion <= 19){
-                            printf("\nSin deprecion");
+                            printf("\nSin depresión");
                         }
                         if (cues.puntuacion >= 20 && cues.puntuacion <= 24){
-                            printf("\nDepresion leve");
+                            printf("\nDepresión leve");
                         }
                         if (cues.puntuacion >= 25 && cues.puntuacion <= 29){
-                            printf("\nDepresion moderada");
+                            printf("\nDepresión moderada");
                         }
                         if (cues.puntuacion >= 30){
-                            printf("\nDepresion severa");
+                            printf("\nDepresión severa");
                         }
                         printf("\nRespuestas");
                         for (i = 0; i < 13; i++){
@@ -2254,18 +2262,18 @@ void verResultados(Paciente *ptrpaciente){
                 do{
                     if ((strcmp(cues.paciente, pregun.paciete) == 0) && (strcmp(cues.fecha, pregun.fecha) == 0)){
                         printf("\nFecha de la consulta %s", cues.fecha);
-                        printf("Cuestionario de zung, puntuacion: %d/57", cues.puntuacion);
+                        printf("Cuestionario de Zung, puntuación: %d/57", cues.puntuacion);
                         if (cues.puntuacion <= 28){
-                            printf("\nAusencia de depresion");
+                            printf("\nAusencia de depresión");
                         }
                         if (cues.puntuacion >= 29 && cues.puntuacion <= 41){
-                            printf("\nDepresion leve");
+                            printf("\nDepresión leve");
                         }
                         if (cues.puntuacion >= 42 && cues.puntuacion <= 53){
-                            printf("\nDepresion moderada");
+                            printf("\nDepresión moderada");
                         }
                         if (cues.puntuacion >= 54){
-                            printf("\nDepresion grave");
+                            printf("\nDepresión grave");
                         }
                         printf("\nRespuestas");
                         for (i = 0; i < 19; i++){
@@ -2286,21 +2294,21 @@ void verResultados(Paciente *ptrpaciente){
                 do{
                     if ((strcmp(cues.paciente, pregunt.paciete) == 0) && (strcmp(cues.fecha, pregunt.fecha) == 0)){
                         printf("\nFecha de la consulta %s", cues.fecha);
-                        printf("Cuestionario de PHQ9, puntuacion: %d/27", cues.puntuacion);
+                        printf("Cuestionario de PHQ9, puntuación: %d/27", cues.puntuacion);
                         if (cues.puntuacion <= 4){
-                            printf("\nDepresion minima");
+                            printf("\nDepresión mínima");
                         }
                         if (cues.puntuacion >= 5 && cues.puntuacion <= 9){
-                            printf("\nDepresion leve");
+                            printf("\nDepresión leve");
                         }
                         if (cues.puntuacion >= 10 && cues.puntuacion <= 14){
-                            printf("\nDepresion moderada");
+                            printf("\nDepresión moderada");
                         }
                         if (cues.puntuacion >= 15 && cues.puntuacion <= 19){
-                            printf("\nDepresion moderada-severa");
+                            printf("\nDepresión moderada-severa");
                         }
                         if (cues.puntuacion >= 20){
-                            printf("\nDepresion severa");
+                            printf("\nDepresión severa");
                         }
                         printf("\nRespuestas");
                         for (i = 0; i < 9; i++){
@@ -2326,12 +2334,12 @@ void eliminarPaciente(Medico *medico){
     char opc[100];
     char negativo[] = ("Salir");
     if (ptrpaciente == NULL){
-        printf("\nNo hay pacientes registrados por el momento, regrese cuando alla registrado a algun paciente\n");
+        printf("\nNo hay pacientes registrados por el momento, regrese cuando haya registrado algún paciente\n");
         fclose(ptrpaciente);
     }else{
         fclose(ptrpaciente);
         printf("\n                     Eliminar paciente\n");
-        printf("\n¿Que paciente desea eliminar?");
+        printf("\n¿Qué paciente desea eliminar?");
         printf("\n(Escriba el nombre del paciente)");
         do{
             opc[0] = '0';
@@ -2344,7 +2352,7 @@ void eliminarPaciente(Medico *medico){
                 fread(&paciente, sizeof(Paciente), 1, ptrpaciente);
             } while (feof(ptrpaciente) == 0);
             fclose(ptrpaciente);
-            printf("\n(Si desea detener esta accion escriba 'Salir')\n");
+            printf("\n(Si desea detener esta acción escriba 'Salir')\n");
             fflush(stdin);    
             scanf("%[^\n]%*c", opc);
             if (strcmp(opc, negativo) != 0){
@@ -2356,7 +2364,7 @@ void eliminarPaciente(Medico *medico){
                             do{
                                 respuesta[0] = '0';
                                 printf("¿Estas seguro de eliminar a este paciente?");
-                                printf("\n[%s]     1)Si    2)No     ", copiaPaciente.nombre);
+                                printf("\n[%s]     1)Sí    2)No     ", copiaPaciente.nombre);
                                 fflush(stdin);
                                 scanf("%[^\n]%*c", respuesta);
                                 opcion = atoi(respuesta);
@@ -2404,9 +2412,20 @@ void eliminarPaciente(Medico *medico){
             }
             fclose(ptrpaciente);
         } while (opcion == 0 || opcion == 2);
-        printf("Saliendo al menu Gestionar pacientes\n");
+        printf("Saliendo al menú Gestionar pacientes\n");
     }
 }
+
+//corregir
+//corregir
+//corregir
+//corregir
+//corregir
+//corregir
+//corregir
+//corregir
+//corregir
+//corregir
 
 void generarInformesMedico(){
     printf("\nSeleccionado Generar Informes\n");
@@ -2415,7 +2434,7 @@ void generarInformesMedico(){
     char estat[40];
     archivo = fopen("registroPaciente.bin", "rb");
     if(archivo == NULL){
-        printf("\nNo hay pacientes registrados por el momento, regrese cuando alla registrado a algun medico\n");
+        printf("\nNo hay pacientes registrados por el momento, regrese cuando haya registrado algún medico\n");
         fclose(archivo);
         return;
     }
@@ -2425,7 +2444,7 @@ void generarInformesMedico(){
     fread(&unapersona, sizeof(Paciente),1,archivo);
     while(!feof(archivo)){
         if(unapersona.estado == 1){
-            strcpy(estat, "Aun en consulta");
+            strcpy(estat, "Aún en consulta");
             printf("\n Médicos [%d]: %s, Estatus: %s\n",cont + 1, unapersona.nombre, estat);
             habi++;
         }else{
@@ -2470,12 +2489,12 @@ void loginPaciente(){
         scanf("%[^\n]%*c", nombreL);
         Pac = validarloginpaci(nombreA,nombreL);
         if (Pac.estado == -100){
-            printf("\nNo hay ningun medico registrado por el momento\n");
+            printf("\nNo hay ningún médico registrado por el momento\n");
             return;
         }
         intentos++;
         if(intentos == 3){
-            printf("\nHas alcanzado el maximo de intentos\n");
+            printf("\nHaz alcanzado el máximo de intentos\n");
             return;
         }
     }while(Pac.estado == 100);
@@ -2514,7 +2533,7 @@ void menuPaciente(Paciente *ptrpac){
     do{
         opc[0] = '0';
         printf("\n          Bienvenido %s!\n", ptrpac->nombre);
-        printf("\n¿Que accion desea realizar? (Seleccione el número de la accion)");
+        printf("\n¿Qué acción desea realizar? (Seleccione el número de la acción)");
         printf("\n1) Responder Cuestionarios");
         printf("\n2) Visualizar datos de las consultas");
         printf("\n3) Salir\n");
@@ -2536,7 +2555,7 @@ void menuPaciente(Paciente *ptrpac){
                     generarInformesPaciente(ptrpac);
                     break;
                 case 3:
-                    printf("Cerrando sesion.\n");
+                    printf("Cerrando sesión...\n");
                     break;
             }
         }else{
@@ -2591,13 +2610,13 @@ void responderCuestionarios(Paciente *ptrpac){
         int test;
     }Preguntas[100];
     if (cuestionario == NULL){
-        printf("\nNo hay ninguna consulta registrada, vuelva cuando registre alguna consulta.\n");
+        printf("\nNo hay consulta registrada, vuelva cuando haya registrado alguna.\n");
         fclose(cuestionario);
         return;
     }
     fclose(cuestionario);
     do{
-        printf("\nSeleccione el numero del cuestionario que desea responder.");
+        printf("\nSeleccione el número del cuestionario que desea responder.");
         cont = 0;
         cuestionario = fopen("registroCuestionarios.bin", "r+b");
         fread(&cues, sizeof(Cuestionarios), 1, cuestionario);
@@ -2635,7 +2654,7 @@ void responderCuestionarios(Paciente *ptrpac){
             lecturas ++;
         }
         if (cont == 0){
-            printf("\nNo tienes ningun cuestionario asignado por el momento\n");
+            printf("\nNo tienes ningún cuestionario asignado por el momento\n");
             return;
         }
         printf("\n");
@@ -2653,12 +2672,12 @@ void responderCuestionarios(Paciente *ptrpac){
             switch (Preguntas[opcion-1].test){
                 case 1:
                     puntuacion = 0;
-                    printf("\nIngrese el numero de la respuesta que mejor describa su situacion");
+                    printf("\nIngrese el número de la respuesta que mejor describa su situación");
                     do{
                         strcpy(resp, "NO");
                         respuesta = 0;
-                        printf("\n1-. Que tan triste te sintes?");
-                        strcpy(beck.pregunta[0].pregunta, "1-. Que tan triste te sintes?");
+                        printf("\n1-. Qué tan triste te sintes?");
+                        strcpy(beck.pregunta[0].pregunta, "1-. Qué tan triste te sintes?");
                         printf("\n1) No me siento triste");
                         printf("\n2) Me siento triste gran parte del tiempo");
                         printf("\n3) Me siento triste todo el tiempo");
@@ -2699,9 +2718,9 @@ void responderCuestionarios(Paciente *ptrpac){
                     do{
                         strcpy(resp, "NO");
                         respuesta = 0;
-                        printf("\n2-. Cual es tu nuvel de pesimismo?");
-                        strcpy(beck.pregunta[1].pregunta, "2-. Cual es tu nuvel de pesimismo?");
-                        printf("\n1) No estoy desalentado respecto del mi futuro");
+                        printf("\n2-. Cuál es tu nivel de pesimismo?");
+                        strcpy(beck.pregunta[1].pregunta, "2-. Cuál es tu nivel de pesimismo?");
+                        printf("\n1) No estoy desalentado respecto de mi futuro");
                         printf("\n2) Me siento más desalentado respecto de mi futuro que lo que solía estarlo");
                         printf("\n3) No espero que las cosas funcionen para mi");
                         printf("\n4) Siento que no hay esperanza para mi futuro y que sólo puede empeorar\n");
@@ -2720,7 +2739,7 @@ void responderCuestionarios(Paciente *ptrpac){
                             puntuacion += (respuesta-1);
                             switch (respuesta){
                                 case 1:
-                                    strcpy(beck.respuesta[1].respuesta, "No estoy desalentado respecto del mi futuro");
+                                    strcpy(beck.respuesta[1].respuesta, "No estoy desalentado respecto de mi futuro");
                                     break;
                                 case 2:
                                     strcpy(beck.respuesta[1].respuesta, "Me siento más desalentado respecto de mi futuro que lo que solía estarlo");
@@ -2741,8 +2760,8 @@ void responderCuestionarios(Paciente *ptrpac){
                     do{
                         strcpy(resp, "NO");
                         respuesta = 0;
-                        printf("\n3-. Sientes que has fracasado?");
-                        strcpy(beck.pregunta[2].pregunta, "3-. Sientes que has fracasado?");
+                        printf("\n3-. Sientes que haz fracasado?");
+                        strcpy(beck.pregunta[2].pregunta, "3-. Sientes que haz fracasado?");
                         printf("\n1) No me siento como un fracasado");
                         printf("\n2) He fracasado más de lo que hubiera debido");
                         printf("\n3) Cuando miro hacia atrás, veo muchos fracasos");
@@ -2782,8 +2801,8 @@ void responderCuestionarios(Paciente *ptrpac){
                     do{
                         strcpy(resp, "NO");
                         respuesta = 0;
-                        printf("\n4-. Has tenido perdida de placer?");
-                        strcpy(beck.pregunta[3].pregunta, "4-. Has tenido perdida de placer?");
+                        printf("\n4-. Haz tenido pérdida de placer?");
+                        strcpy(beck.pregunta[3].pregunta, "4-. Haz tenido pérdida de placer?");
                         printf("\n1) Obtengo tanto placer como siempre por las cosas de las que disfruto");
                         printf("\n2) No disfruto tanto de las cosas como solía hacerlo");
                         printf("\n3) Obtengo muy poco placer de las cosas que solía disfrutar");
@@ -2864,8 +2883,8 @@ void responderCuestionarios(Paciente *ptrpac){
                     do{
                         strcpy(resp, "NO");
                         respuesta = 0;
-                        printf("\n6-. Has tenido sentimientos de castigo?");
-                        strcpy(beck.pregunta[5].pregunta, "6-. Has tenido sentimientos de castigo?");
+                        printf("\n6-. Haz tenido sentimientos de castigo?");
+                        strcpy(beck.pregunta[5].pregunta, "6-. Haz tenido sentimientos de castigo?");
                         printf("\n1) No siento que este siendo castigado");
                         printf("\n2) Siento que tal vez pueda ser castigado");
                         printf("\n3) Espero ser castigado");
@@ -2987,8 +3006,8 @@ void responderCuestionarios(Paciente *ptrpac){
                     do{
                         strcpy(resp, "NO");
                         respuesta = 0;
-                        printf("\n9-. Has tenido pensamientos o deseos suicidas?");
-                        strcpy(beck.pregunta[8].pregunta, "9-. Has tenido pensamientos o deseos suicidas?");
+                        printf("\n9-. Haz tenido pensamientos o deseos suicidas?");
+                        strcpy(beck.pregunta[8].pregunta, "9-. Haz tenido pensamientos o deseos suicidas?");
                         printf("\n1) No tengo ningún pensamiento de matarme");
                         printf("\n2) He tenido pensamientos de matarme, pero no lo haría");
                         printf("\n3) Querría matarme");
@@ -3028,8 +3047,8 @@ void responderCuestionarios(Paciente *ptrpac){
                     do{
                         strcpy(resp, "NO");
                         respuesta = 0;
-                        printf("\n10-. Que tanto has llorado ultimamente?");
-                        strcpy(beck.pregunta[9].pregunta, "10-. Que tanto has llorado ultimamente?");
+                        printf("\n10-. Qué tanto has llorado últimamente?");
+                        strcpy(beck.pregunta[9].pregunta, "10-. Qué tanto has llorado últimamente?");
                         printf("\n1) No lloro más de lo que solía hacerlo");
                         printf("\n2) Lloro más de lo que solía hacerlo");
                         printf("\n3) Lloro por cualquier pequeñez");
@@ -3069,8 +3088,8 @@ void responderCuestionarios(Paciente *ptrpac){
                     do{
                         strcpy(resp, "NO");
                         respuesta = 0;
-                        printf("\n11-. Te has sentido inquieto o agitado?");
-                        strcpy(beck.pregunta[10].pregunta, "11-. Te has sentido inquieto o agitado?");
+                        printf("\n11-. Te haz sentido inquieto o agitado?");
+                        strcpy(beck.pregunta[10].pregunta, "11-. Te haz sentido inquieto o agitado?");
                         printf("\n1) No estoy más inquieto o tenso que lo habitual");
                         printf("\n2) Me siento más inquieto o tenso que lo habitual");
                         printf("\n3) Estoy tan inquieto o agitado que me es difícil quedarme quieto");
@@ -3110,8 +3129,8 @@ void responderCuestionarios(Paciente *ptrpac){
                     do{
                         strcpy(resp, "NO");
                         respuesta = 0;
-                        printf("\n12-. Has tenido perdida de interes?");
-                        strcpy(beck.pregunta[11].pregunta, "12-. Has tenido perdida de interes?");
+                        printf("\n12-. Haz tenido pérdida de interés?");
+                        strcpy(beck.pregunta[11].pregunta, "12-. Haz tenido pérdida de interés?");
                         printf("\n1) No he perdido el interés en otras actividades o personas");
                         printf("\n2) Estoy menos interesado que antes en otras personas o cosas");
                         printf("\n3) He perdido casi todo el interés en otras personas o cosas");
@@ -3151,8 +3170,8 @@ void responderCuestionarios(Paciente *ptrpac){
                     do{
                         strcpy(resp, "NO");
                         respuesta = 0;
-                        printf("\n13-. Como es tu toma de decisiones?");
-                        strcpy(beck.pregunta[12].pregunta, "13-. Como es tu toma de decisiones?");
+                        printf("\n13-. Cómo es tu toma de decisiones?");
+                        strcpy(beck.pregunta[12].pregunta, "13-. Cómo es tu toma de decisiones?");
                         printf("\n1) Tomo mis propias decisiones tan bien como siempre");
                         printf("\n2) Me resulta más difícil que de costumbre tomar decisiones");
                         printf("\n3) Encuentro mucha más dificultad que antes para tomar decisiones");
@@ -3233,8 +3252,8 @@ void responderCuestionarios(Paciente *ptrpac){
                     do{
                         strcpy(resp, "NO");
                         respuesta = 0;
-                        printf("\n15-. Tienes perdida de energia?");
-                        strcpy(beck.pregunta[14].pregunta, "15-. Tienes perdida de energia?");
+                        printf("\n15-. Tienes pérdida de energia?");
+                        strcpy(beck.pregunta[14].pregunta, "15-. Tienes pérdida de energia?");
                         printf("\n1) Tengo tanta energía como siempre");
                         printf("\n2) Tengo menos energía que la que solía tener");
                         printf("\n3) No tengo suficiente energía para hacer demasiado");
@@ -3274,8 +3293,8 @@ void responderCuestionarios(Paciente *ptrpac){
                     do{
                         strcpy(resp, "NO");
                         respuesta = 0;
-                        printf("\n16-. Has experimentado cambios en tus habitos de sueño?");
-                        strcpy(beck.pregunta[15].pregunta, "16-. Has experimentado cambios en tus habitos de sueño?");
+                        printf("\n16-. Haz experimentado cambios en tus hábitos de sueño?");
+                        strcpy(beck.pregunta[15].pregunta, "16-. Haz experimentado cambios en tus hábitos de sueño?");
                         printf("\n1) No he experimentado ningún cambio en mis hábitos de sueño");
                         printf("\n2) Duermo un poco menos que lo habitual");
                         printf("\n3) Duermo mucho menos que lo habitual");
@@ -3315,8 +3334,8 @@ void responderCuestionarios(Paciente *ptrpac){
                     do{
                         strcpy(resp, "NO");
                         respuesta = 0;
-                        printf("\n17-. Que tan irritable te has sentido?");
-                        strcpy(beck.pregunta[16].pregunta, "17-. Que tan irritable te has sentido?");
+                        printf("\n17-. Qué tan irritable te haz sentido?");
+                        strcpy(beck.pregunta[16].pregunta, "17-. Qué tan irritable te haz sentido?");
                         printf("\n1) No estoy tan irritable que lo habitual");
                         printf("\n2) Estoy más irritable que lo habitual");
                         printf("\n3) Estoy mucho más irritable que lo habitual");
@@ -3356,8 +3375,8 @@ void responderCuestionarios(Paciente *ptrpac){
                     do{
                         strcpy(resp, "NO");
                         respuesta = 0;
-                        printf("\n18-. Has tenido cambios en el apetito?");
-                        strcpy(beck.pregunta[17].pregunta, "18-. Has tenido cambios en el apetito?");
+                        printf("\n18-. Haz tenido cambios en el apetito?");
+                        strcpy(beck.pregunta[17].pregunta, "18-. Haz tenido cambios en el apetito?");
                         printf("\n1) No he experimentado ningún cambio en mi apetito");
                         printf("\n2) Mi apetito es un poco menor que lo habitual");
                         printf("\n3) Mi apetito es mucho menor que antes");
@@ -3397,8 +3416,8 @@ void responderCuestionarios(Paciente *ptrpac){
                     do{
                         strcpy(resp, "NO");
                         respuesta = 0;
-                        printf("\n19-. Has tenido dificultad de concentracion?");
-                        strcpy(beck.pregunta[18].pregunta, "19-. Has tenido dificultad de concentracion?");
+                        printf("\n19-. Haz tenido dificultad de concentración?");
+                        strcpy(beck.pregunta[18].pregunta, "19-. Haz tenido dificultad de concentración?");
                         printf("\n1) Puedo concentrarme tan bien como siempre");
                         printf("\n2) No puedo concentrarme tan bien como habitualmente");
                         printf("\n3) Me es difícil mantener la mente en algo por mucho tiempo");
@@ -3438,8 +3457,8 @@ void responderCuestionarios(Paciente *ptrpac){
                     do{
                         strcpy(resp, "NO");
                         respuesta = 0;
-                        printf("\n20-. Te sientes cansado o fatigado");
-                        strcpy(beck.pregunta[19].pregunta, "20-. Te sientes cqnsado o fatigado");
+                        printf("\n20-. Te sientes cansado o fatigado?");
+                        strcpy(beck.pregunta[19].pregunta, "20-. Te sientes cansado o fatigado?");
                         printf("\n1) No estoy más cansado o fatigado que lo habitual");
                         printf("\n2) Me fatigo o me canso más fácilmente que lo habitual");
                         printf("\n3) Estoy demasiado fatigado o cansado para hacer muchas de las cosas que solía hacer");
@@ -3479,8 +3498,8 @@ void responderCuestionarios(Paciente *ptrpac){
                     do{
                         strcpy(resp, "NO");
                         respuesta = 0;
-                        printf("\n21-. Has tenido perdida de interes en el sexo");
-                        strcpy(beck.pregunta[20].pregunta, "21-. Has tenido perdida de interes en el sexo");
+                        printf("\n21-. Haz tenido pérdida de interés en el sexo?");
+                        strcpy(beck.pregunta[20].pregunta, "21-. Haz tenido pérdida de interés en el sexo?");
                         printf("\n1) No he notado ningún cambio reciente en mi interés por el sexo");
                         printf("\n2) Estoy menos interesado en el sexo de lo que solía estarlo");
                         printf("\n3) Estoy mucho menos interesado en el sexo");
@@ -3534,14 +3553,14 @@ void responderCuestionarios(Paciente *ptrpac){
                     break;
                 case 2:
                     puntuacion = 0;
-                    printf("\nIngrese el numero de la respuesta que mejor describa su situacion");
+                    printf("\nIngrese el número de la respuesta que mejor describa su situación");
                     do{
                         strcpy(resp, "NO");
                         respuesta = 0;
                         printf("\n1-. ¿Se ha sentido deprimido o triste?");
                         strcpy(Mdi.pregunta[0].pregunta, "1-. ¿Se ha sentido deprimido o triste?");
                         printf("\n1) Nunca");
-                        printf("\n2) Ocasional mente");
+                        printf("\n2) Ocasionalmente");
                         printf("\n3) Poco menos de la mitad del tiempo");
                         printf("\n4) Poco más de la mitad del tiempo");
                         printf("\n5) La mayor parte del tiempo");
@@ -3564,7 +3583,7 @@ void responderCuestionarios(Paciente *ptrpac){
                                     strcpy(Mdi.respuesta[0].respuesta, "Nunca");
                                     break;
                                 case 2:
-                                    strcpy(Mdi.respuesta[0].respuesta, "Ocasional mente");
+                                    strcpy(Mdi.respuesta[0].respuesta, "Ocasionalmente");
                                     break;
                                 case 3:
                                     strcpy(Mdi.respuesta[0].respuesta, "Poco menos de la mitad del tiempo");
@@ -3591,7 +3610,7 @@ void responderCuestionarios(Paciente *ptrpac){
                         printf("\n2-. ¿Ha perdido interés en sus actividades diarias?");
                         strcpy(Mdi.pregunta[1].pregunta, "2-. ¿Ha perdido interés en sus actividades diarias?");
                         printf("\n1) Nunca");
-                        printf("\n2) Ocasional mente");
+                        printf("\n2) Ocasionalmente");
                         printf("\n3) Poco menos de la mitad del tiempo");
                         printf("\n4) Poco más de la mitad del tiempo");
                         printf("\n5) La mayor parte del tiempo");
@@ -3614,7 +3633,7 @@ void responderCuestionarios(Paciente *ptrpac){
                                     strcpy(Mdi.respuesta[1].respuesta, "Nunca");
                                     break;
                                 case 2:
-                                    strcpy(Mdi.respuesta[1].respuesta, "Ocasional mente");
+                                    strcpy(Mdi.respuesta[1].respuesta, "Ocasionalmente");
                                     break;
                                 case 3:
                                     strcpy(Mdi.respuesta[1].respuesta, "Poco menos de la mitad del tiempo");
@@ -3641,7 +3660,7 @@ void responderCuestionarios(Paciente *ptrpac){
                         printf("\n3-. ¿Ha sentido falta de energía y fuerza?");
                         strcpy(Mdi.pregunta[2].pregunta, "3-. ¿Ha sentido falta de energía y fuerza?");
                         printf("\n1) Nunca");
-                        printf("\n2) Ocasional mente");
+                        printf("\n2) Ocasionalmente");
                         printf("\n3) Poco menos de la mitad del tiempo");
                         printf("\n4) Poco más de la mitad del tiempo");
                         printf("\n5) La mayor parte del tiempo");
@@ -3664,7 +3683,7 @@ void responderCuestionarios(Paciente *ptrpac){
                                     strcpy(Mdi.respuesta[2].respuesta, "Nunca");
                                     break;
                                 case 2:
-                                    strcpy(Mdi.respuesta[2].respuesta, "Ocasional mente");
+                                    strcpy(Mdi.respuesta[2].respuesta, "Ocasionalmente");
                                     break;
                                 case 3:
                                     strcpy(Mdi.respuesta[2].respuesta, "Poco menos de la mitad del tiempo");
@@ -3691,7 +3710,7 @@ void responderCuestionarios(Paciente *ptrpac){
                         printf("\n4-. ¿Ha sentido menos confianza en sí mismo?");
                         strcpy(Mdi.pregunta[3].pregunta, "4-. ¿Ha sentido menos confianza en sí mismo?");
                         printf("\n1) Nunca");
-                        printf("\n2) Ocasional mente");
+                        printf("\n2) Ocasionalmente");
                         printf("\n3) Poco menos de la mitad del tiempo");
                         printf("\n4) Poco más de la mitad del tiempo");
                         printf("\n5) La mayor parte del tiempo");
@@ -3714,7 +3733,7 @@ void responderCuestionarios(Paciente *ptrpac){
                                     strcpy(Mdi.respuesta[3].respuesta, "Nunca");
                                     break;
                                 case 2:
-                                    strcpy(Mdi.respuesta[3].respuesta, "Ocasional mente");
+                                    strcpy(Mdi.respuesta[3].respuesta, "Ocasionalmente");
                                     break;
                                 case 3:
                                     strcpy(Mdi.respuesta[3].respuesta, "Poco menos de la mitad del tiempo");
@@ -3741,7 +3760,7 @@ void responderCuestionarios(Paciente *ptrpac){
                         printf("\n5-. ¿Ha tenido usted cargos de conciencia o sentimientos de culpa?");
                         strcpy(Mdi.pregunta[4].pregunta, "5-. ¿Ha tenido usted cargos de conciencia o sentimientos de culpa?");
                         printf("\n1) Nunca");
-                        printf("\n2) Ocasional mente");
+                        printf("\n2) Ocasionalmente");
                         printf("\n3) Poco menos de la mitad del tiempo");
                         printf("\n4) Poco más de la mitad del tiempo");
                         printf("\n5) La mayor parte del tiempo");
@@ -3764,7 +3783,7 @@ void responderCuestionarios(Paciente *ptrpac){
                                     strcpy(Mdi.respuesta[4].respuesta, "Nunca");
                                     break;
                                 case 2:
-                                    strcpy(Mdi.respuesta[4].respuesta, "Ocasional mente");
+                                    strcpy(Mdi.respuesta[4].respuesta, "Ocasionalmente");
                                     break;
                                 case 3:
                                     strcpy(Mdi.respuesta[4].respuesta, "Poco menos de la mitad del tiempo");
@@ -3791,7 +3810,7 @@ void responderCuestionarios(Paciente *ptrpac){
                         printf("\n6-. ¿Ha sentido que la vida no merece la pena vivirla?");
                         strcpy(Mdi.pregunta[5].pregunta, "6-. ¿Ha sentido que la vida no merece la pena vivirla?");
                         printf("\n1) Nunca");
-                        printf("\n2) Ocasional mente");
+                        printf("\n2) Ocasionalmente");
                         printf("\n3) Poco menos de la mitad del tiempo");
                         printf("\n4) Poco más de la mitad del tiempo");
                         printf("\n5) La mayor parte del tiempo");
@@ -3814,7 +3833,7 @@ void responderCuestionarios(Paciente *ptrpac){
                                     strcpy(Mdi.respuesta[5].respuesta, "Nunca");
                                     break;
                                 case 2:
-                                    strcpy(Mdi.respuesta[5].respuesta, "Ocasional mente");
+                                    strcpy(Mdi.respuesta[5].respuesta, "Ocasionalmente");
                                     break;
                                 case 3:
                                     strcpy(Mdi.respuesta[5].respuesta, "Poco menos de la mitad del tiempo");
@@ -3841,7 +3860,7 @@ void responderCuestionarios(Paciente *ptrpac){
                         printf("\n7-. ¿Ha tenido dificultades para concentrarse?");
                         strcpy(Mdi.pregunta[6].pregunta, "7-. ¿Ha tenido dificultades para concentrarse?");
                         printf("\n1) Nunca");
-                        printf("\n2) Ocasional mente");
+                        printf("\n2) Ocasionalmente");
                         printf("\n3) Poco menos de la mitad del tiempo");
                         printf("\n4) Poco más de la mitad del tiempo");
                         printf("\n5) La mayor parte del tiempo");
@@ -3864,7 +3883,7 @@ void responderCuestionarios(Paciente *ptrpac){
                                     strcpy(Mdi.respuesta[6].respuesta, "Nunca");
                                     break;
                                 case 2:
-                                    strcpy(Mdi.respuesta[6].respuesta, "Ocasional mente");
+                                    strcpy(Mdi.respuesta[6].respuesta, "Ocasionalmente");
                                     break;
                                 case 3:
                                     strcpy(Mdi.respuesta[6].respuesta, "Poco menos de la mitad del tiempo");
@@ -3891,7 +3910,7 @@ void responderCuestionarios(Paciente *ptrpac){
                         printf("\n8-. ¿Se ha sentido muy inquieto?");
                         strcpy(Mdi.pregunta[7].pregunta, "8-. ¿Se ha sentido muy inquieto?");
                         printf("\n1) Nunca");
-                        printf("\n2) Ocasional mente");
+                        printf("\n2) Ocasionalmente");
                         printf("\n3) Poco menos de la mitad del tiempo");
                         printf("\n4) Poco más de la mitad del tiempo");
                         printf("\n5) La mayor parte del tiempo");
@@ -3914,7 +3933,7 @@ void responderCuestionarios(Paciente *ptrpac){
                                     strcpy(Mdi.respuesta[7].respuesta, "Nunca");
                                     break;
                                 case 2:
-                                    strcpy(Mdi.respuesta[7].respuesta, "Ocasional mente");
+                                    strcpy(Mdi.respuesta[7].respuesta, "Ocasionalmente");
                                     break;
                                 case 3:
                                     strcpy(Mdi.respuesta[7].respuesta, "Poco menos de la mitad del tiempo");
@@ -3941,7 +3960,7 @@ void responderCuestionarios(Paciente *ptrpac){
                         printf("\n9-. ¿Se ha sentido apagado o lento?");
                         strcpy(Mdi.pregunta[8].pregunta, "9-. ¿Se ha sentido apagado o lento?");
                         printf("\n1) Nunca");
-                        printf("\n2) Ocasional mente");
+                        printf("\n2) Ocasionalmente");
                         printf("\n3) Poco menos de la mitad del tiempo");
                         printf("\n4) Poco más de la mitad del tiempo");
                         printf("\n5) La mayor parte del tiempo");
@@ -3964,7 +3983,7 @@ void responderCuestionarios(Paciente *ptrpac){
                                     strcpy(Mdi.respuesta[8].respuesta, "Nunca");
                                     break;
                                 case 2:
-                                    strcpy(Mdi.respuesta[8].respuesta, "Ocasional mente");
+                                    strcpy(Mdi.respuesta[8].respuesta, "Ocasionalmente");
                                     break;
                                 case 3:
                                     strcpy(Mdi.respuesta[8].respuesta, "Poco menos de la mitad del tiempo");
@@ -3991,7 +4010,7 @@ void responderCuestionarios(Paciente *ptrpac){
                         printf("\n10-. ¿Has estado durmiendo muy poco?");
                         strcpy(Mdi.pregunta[9].pregunta, "10-. ¿Has estado durmiendo muy poco?");
                         printf("\n1) Nunca");
-                        printf("\n2) Ocasional mente");
+                        printf("\n2) Ocasionalmente");
                         printf("\n3) Poco menos de la mitad del tiempo");
                         printf("\n4) Poco más de la mitad del tiempo");
                         printf("\n5) La mayor parte del tiempo");
@@ -4014,7 +4033,7 @@ void responderCuestionarios(Paciente *ptrpac){
                                     strcpy(Mdi.respuesta[9].respuesta, "Nunca");
                                     break;
                                 case 2:
-                                    strcpy(Mdi.respuesta[9].respuesta, "Ocasional mente");
+                                    strcpy(Mdi.respuesta[9].respuesta, "Ocasionalmente");
                                     break;
                                 case 3:
                                     strcpy(Mdi.respuesta[9].respuesta, "Poco menos de la mitad del tiempo");
@@ -4041,7 +4060,7 @@ void responderCuestionarios(Paciente *ptrpac){
                         printf("\n11-. ¿Has estado durmiendo demasiado?");
                         strcpy(Mdi.pregunta[10].pregunta, "11-. ¿Has estado durmiendo demasiado?");
                         printf("\n1) Nunca");
-                        printf("\n2) Ocasional mente");
+                        printf("\n2) Ocasionalmente");
                         printf("\n3) Poco menos de la mitad del tiempo");
                         printf("\n4) Poco más de la mitad del tiempo");
                         printf("\n5) La mayor parte del tiempo");
@@ -4064,7 +4083,7 @@ void responderCuestionarios(Paciente *ptrpac){
                                     strcpy(Mdi.respuesta[10].respuesta, "Nunca");
                                     break;
                                 case 2:
-                                    strcpy(Mdi.respuesta[10].respuesta, "Ocasional mente");
+                                    strcpy(Mdi.respuesta[10].respuesta, "Ocasionalmente");
                                     break;
                                 case 3:
                                     strcpy(Mdi.respuesta[10].respuesta, "Poco menos de la mitad del tiempo");
@@ -4091,7 +4110,7 @@ void responderCuestionarios(Paciente *ptrpac){
                         printf("\n12-. ¿Ha notado falta de apetito?");
                         strcpy(Mdi.pregunta[11].pregunta, "12-. ¿Ha notado falta de apetito?");
                         printf("\n1) Nunca");
-                        printf("\n2) Ocasional mente");
+                        printf("\n2) Ocasionalmente");
                         printf("\n3) Poco menos de la mitad del tiempo");
                         printf("\n4) Poco más de la mitad del tiempo");
                         printf("\n5) La mayor parte del tiempo");
@@ -4114,7 +4133,7 @@ void responderCuestionarios(Paciente *ptrpac){
                                     strcpy(Mdi.respuesta[11].respuesta, "Nunca");
                                     break;
                                 case 2:
-                                    strcpy(Mdi.respuesta[11].respuesta, "Ocasional mente");
+                                    strcpy(Mdi.respuesta[11].respuesta, "Ocasionalmente");
                                     break;
                                 case 3:
                                     strcpy(Mdi.respuesta[11].respuesta, "Poco menos de la mitad del tiempo");
@@ -4141,7 +4160,7 @@ void responderCuestionarios(Paciente *ptrpac){
                         printf("\n13-. ¿Ha notado aumento de apetito?");
                         strcpy(Mdi.pregunta[12].pregunta, "13-. ¿Ha notado aumento de apetito?");
                         printf("\n1) Nunca");
-                        printf("\n2) Ocasional mente");
+                        printf("\n2) Ocasionalmente");
                         printf("\n3) Poco menos de la mitad del tiempo");
                         printf("\n4) Poco más de la mitad del tiempo");
                         printf("\n5) La mayor parte del tiempo");
@@ -4164,7 +4183,7 @@ void responderCuestionarios(Paciente *ptrpac){
                                     strcpy(Mdi.respuesta[12].respuesta, "Nunca");
                                     break;
                                 case 2:
-                                    strcpy(Mdi.respuesta[12].respuesta, "Ocasional mente");
+                                    strcpy(Mdi.respuesta[12].respuesta, "Ocasionalmente");
                                     break;
                                 case 3:
                                     strcpy(Mdi.respuesta[12].respuesta, "Poco menos de la mitad del tiempo");
@@ -5401,7 +5420,7 @@ void generarInformesPaciente(Paciente *ptrpac){
     char estat[20];
     archivo = fopen("registroCuestionarios.bin", "rb");
     if(archivo == NULL){
-        printf("\nNo hay pacientes registrados por el momento, regrese cuando alla registrado a algun medico\n");
+        printf("\nNo hay pacientes registrados por el momento, regrese cuando haya registrado a algun medico\n");
         fclose(archivo);
         return;
     }
